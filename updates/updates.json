@@ -7,29 +7,24 @@
       "name": "Notepad++",
       "vendor": "Don Ho",
       "category": "Text Editor",
-
       "current": {
         "version": "8.6.3",
         "release_date": "2025-01-15"
       },
-
       "source": {
         "type": "website",
         "url": "https://notepad-plus-plus.org/downloads/"
       },
-
       "install": {
         "method": "manual",
         "package_manager": null,
         "silent_switches": "/S"
       },
-
       "upgrade": {
         "method": "in-place",
         "path": "Download installer → run over existing install",
         "requires_reboot": false
       },
-
       "history": [
         {
           "version": "8.6.3",
@@ -41,6 +36,44 @@
           "version": "8.6.2",
           "release_date": "2024-12-02",
           "noted_on": "2024-12-05"
+        }
+      ]
+    },
+    {
+      "id": "powershell",
+      "name": "PowerShell",
+      "vendor": "Microsoft",
+      "category": "Shell / Automation",
+      "current": {
+        "version": "7.4.3",
+        "release_date": "2026-02-01"
+      },
+      "source": {
+        "type": "github",
+        "url": "https://github.com/PowerShell/PowerShell/releases"
+      },
+      "install": {
+        "method": "package_manager",
+        "package_manager": "winget",
+        "silent_switches": null
+      },
+      "upgrade": {
+        "method": "in-place",
+        "path": "winget upgrade Microsoft.PowerShell",
+        "requires_reboot": false
+      },
+      "history": [
+        {
+          "version": "7.4.3",
+          "release_date": "2026-02-01",
+          "noted_on": "2026-02-02",
+          "notes": "Bug fixes and performance improvements, TEST"
+        },
+        {
+          "version": "7.4.2",
+          "release_date": "2026-02-01",
+          "noted_on": "2026-02-02",
+          "notes": "Initial tracking entry"
         }
       ]
     }
