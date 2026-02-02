@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--
+        File Name   : viewport-size.html
+        Author      : Jason Lamb (with help from AI)
+        Created     : 2026-02-02
+        Modified    : 2026-02-02
+        Revision    : 1.0
+        Change Log  :
+          - 1.0 Initial version – live viewport width x height display
+    -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viewport Size</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            background: #0f172a;
+            color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .box {
+            text-align: center;
+            padding: 2rem 3rem;
+            border-radius: 12px;
+            background: #020617;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .label {
+            font-size: 1rem;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .size {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <div class="label">Viewport Size (W × H)</div>
+        <div id="size" class="size">– × –</div>
+    </div>
+
+    <script>
+        function updateSize() {
+            const width  = window.innerWidth;
+            const height = window.innerHeight;
+            document.getElementById('size').textContent = `${width} × ${height}`;
+        }
+
+        // Initial render
+        updateSize();
+
+        // Update on resize and orientation change
+        window.addEventListener('resize', updateSize);
+        window.addEventListener('orientationchange', updateSize);
+    </script>
+
+</body>
+</html>
