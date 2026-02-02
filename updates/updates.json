@@ -76,6 +76,70 @@
           "notes": "Initial tracking entry"
         }
       ]
+    },
+    {
+      "id": "7zip",
+      "name": "7-Zip",
+      "vendor": "Igor Pavlov",
+      "category": "Compression",
+      "current": {
+        "version": "24.09",
+        "release_date": "2024-11-29"
+      },
+      "source": {
+        "type": "website",
+        "url": "https://www.7-zip.org/"
+      },
+      "install": {
+        "method": "manual",
+        "package_manager": "",
+        "silent_switches": null
+      },
+      "upgrade": {
+        "method": "in-place",
+        "path": "Run installer",
+        "requires_reboot": false
+      },
+      "history": [
+        {
+          "version": "24.09",
+          "release_date": "2024-11-29",
+          "noted_on": "2026-02-02",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "vscode",
+      "name": "Visual Studio Code",
+      "vendor": "Microsoft",
+      "category": "IDE",
+      "current": {
+        "version": "1.96.4",
+        "release_date": "2025-01-24"
+      },
+      "source": {
+        "type": "github",
+        "url": "https://github.com/microsoft/vscode/releases"
+      },
+      "install": {
+        "method": "package_manager",
+        "package_manager": "winget",
+        "silent_switches": null
+      },
+      "upgrade": {
+        "method": "in-place",
+        "path": "winget upgrade Microsoft.VisualStudioCode",
+        "requires_reboot": false
+      },
+      "history": [
+        {
+          "version": "1.96.4",
+          "release_date": "2025-01-24",
+          "noted_on": "2026-02-02",
+          "notes": ""
+        }
+      ]
     }
   ]
 }

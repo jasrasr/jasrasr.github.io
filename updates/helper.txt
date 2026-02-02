@@ -19,3 +19,21 @@ run direct from powershell (tested, does not work, intended to launch site/page,
 powershell: Start-Process "http://localhost:8000"
 powershell: npx serve . (node or npx not installed)
 
+CSV import
+| Column         | Required | Notes                                   |
+| -------------- | -------- | --------------------------------------- |
+| Id             | ✅        | lowercase, no spaces, stable forever    |
+| Name           | ✅        | Display name                            |
+| Vendor         | ✅        | Company / author                        |
+| Category       | ✅        | Free text but be consistent             |
+| Version        | ✅        | As released                             |
+| ReleaseDate    | ✅        | `YYYY-MM-DD`                            |
+| SourceType     | ✅        | `website`, `github`, `vendor`, etc      |
+| SourceUrl      | ✅        | Full URL                                |
+| InstallMethod  | ❌        | `manual`, `package_manager`, `msi`, etc |
+| PackageManager | ❌        | `winget`, `choco`, `brew`, or blank     |
+| UpgradeMethod  | ❌        | `in-place`, `replace`, etc              |
+| UpgradePath    | ❌        | Human-readable or command               |
+| RequiresReboot | ❌        | `true` or `false`                       |
+| Notes          | ❌        | Initial context                         |
+
