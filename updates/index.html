@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<!--
+  File: index.html
+  Project: Updates Tracker
+  Author: Jason Lamb
+  Created: 2026-02-02
+  Revision: 1.0
+  Description:
+  Read-only frontend for tracking software updates, versions,
+  release dates, sources, and upgrade paths.
+-->
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Updates Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin: 20px;
+      background: #f6f7f9;
+      color: #222;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e0e0e0;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f0f2f5;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background: #f9fafb;
+    }
+
+    .status-green { color: #2e7d32; font-weight: 600; }
+    .status-yellow { color: #f57c00; font-weight: 600; }
+    .status-red { color: #c62828; font-weight: 600; }
+
+    .small {
+      font-size: 0.85em;
+      color: #666;
+    }
+
+    footer {
+      margin-top: 25px;
+      font-size: 0.85em;
+      color: #666;
+    }
+
+    a {
+      color: #1565c0;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Updates Tracker</h1>
+<div class="subtitle">
+  Tracking software updates, versions, sources, and upgrade paths.
+</div>
+
+<table id="updatesTable">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Current Version</th>
+      <th>Release Date</th>
+      <th>Days Since Release</th>
+      <th>Upgrade Method</th>
+      <th>Source</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Populated by app.js -->
+  </tbody>
+</table>
+
+<footer>
+  Source of truth: <strong>updates.json</strong><br>
+  History preserved via Git commits
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
