@@ -1,0 +1,21 @@
+run python via powershell (works)
+powershell: cd "$githubpath\jasrasr.github.io\updates"
+powershell: python -m http.server 8000
+# invoke-item http://localhost:8000/index.html # this won't because it is monitoring the connection and can't launch chrome/edge for page load (invoke-item)
+chrome: http://localhost:8000/index.html
+
+also from powershell: (works, new cmd window and automcatically launches page)
+powershell: Start-Process python "-m http.server 8000" -WorkingDirectory .
+
+also from powershell (works)
+powershell: Start-Job { python -m http.server 8000 }
+chrome: http://localhost:8000/index.html
+
+launch chrome with: (works)
+WIN + R: chrome.exe --allow-file-access-from-files
+chrome: https://jasrasr.github.io/updates/index.html
+
+run direct from powershell (tested, does not work, intended to launch site/page, does not start service)
+powershell: Start-Process "http://localhost:8000"
+powershell: npx serve . (node or npx not installed)
+
