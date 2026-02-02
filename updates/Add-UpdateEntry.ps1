@@ -75,3 +75,19 @@ Write-Host "Update applied successfully:" -ForegroundColor Green
 Write-Host "  ID       : $Id"
 Write-Host "  Version  : $Version"
 Write-Host "  Released : $($ReleaseDate.ToString('yyyy-MM-dd'))"
+
+<#
+# Example 1: Add a new PowerShell release
+.\Add-UpdateEntry.ps1 `
+  -Id 'powershell' `
+  -Version '7.4.2' `
+  -ReleaseDate '2026-02-01' `
+  -Notes 'Bug fixes and performance improvements'
+
+# Example 2: Update Notepad++
+.\Add-UpdateEntry.ps1 `
+  -Id 'notepadpp' `
+  -Version '8.6.4' `
+  -ReleaseDate '2026-01-28' `
+  -Notes 'Security fixes'
+#>
