@@ -9,6 +9,7 @@
       "category": "Text Editor",
       "current": {
         "version": "8.6.3",
+        "build": "",
         "release_date": "2025-01-15"
       },
       "source": {
@@ -34,6 +35,7 @@
         },
         {
           "version": "8.6.2",
+          "build": "",
           "release_date": "2024-12-02",
           "noted_on": "2024-12-05"
         }
@@ -46,6 +48,7 @@
       "category": "Shell / Automation",
       "current": {
         "version": "7.4.3",
+        "build": "",
         "release_date": "2026-02-01"
       },
       "source": {
@@ -65,12 +68,14 @@
       "history": [
         {
           "version": "7.4.3",
+          "build": "",
           "release_date": "2026-02-01",
           "noted_on": "2026-02-02",
           "notes": "Bug fixes and performance improvements, TEST"
         },
         {
           "version": "7.4.2",
+          "build": "",
           "release_date": "2026-02-01",
           "noted_on": "2026-02-02",
           "notes": "Initial tracking entry"
@@ -103,6 +108,7 @@
       "history": [
         {
           "version": "24.09",
+          "build": "",
           "release_date": "2024-11-29",
           "noted_on": "2026-02-02",
           "notes": ""
@@ -135,9 +141,200 @@
       "history": [
         {
           "version": "1.96.4",
+          "build": "",
           "release_date": "2025-01-24",
           "noted_on": "2026-02-02",
           "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "o365",
+      "name": "Office 365",
+      "vendor": "Microsoft",
+      "category": "Productivity",
+      "current": {
+        "version": "2601",
+        "release_date": "2026-01-27",
+        "build": "19268.2015"
+      },
+      "source": {
+        "type": "website",
+        "url": "https://learn.microsoft.com/en-us/officeupdates/update-history-microsoft365-apps-by-date"
+      },
+      "install": {
+        "package_manager": "ODT",
+        "method": "automox/windows updates/microsoft updates/ODT"
+      },
+      "upgrade": {
+        "method": "in-place",
+        "requires_reboot": true,
+        "path": "ODT"
+      },
+      "history": [
+        {
+          "version": "2601",
+          "release_date": "2026-01-27",
+          "noted_on": "2026-02-02",
+          "notes": "Initial tracking entry",
+          "build": "19268.2015"
+        }
+      ]
+    },
+    {
+      "id": "w11",
+      "name": "Windows 11 Enterprise",
+      "vendor": "Microsoft",
+      "category": "OS",
+      "current": {
+        "version": "25H2",
+        "release_date": "2026-01-13",
+        "build": "26200.7323"
+      },
+      "source": {
+        "type": "website",
+        "url": "https://learn.microsoft.com/en-us/windows/whats-new/whats-new-windows-11-version-25h2"
+      },
+      "install": {
+        "package_manager": "windows udpate",
+        "method": "automox/windows updates"
+      },
+      "upgrade": {
+        "method": "in-place",
+        "requires_reboot": true,
+        "path": "Windows Update"
+      },
+      "history": [
+        {
+          "version": "25H2",
+          "release_date": "2026-01-13",
+          "noted_on": "2026-02-02",
+          "notes": "Initial tracking entry",
+          "build": "26200.7323"
+        }
+      ]
+    },
+    {
+      "id": "greenshot",
+      "name": "Greenshot",
+      "vendor": "Greenshot",
+      "category": "Screenshot",
+      "current": {
+        "version": "1.3.312",
+        "release_date": "2026-01-07"
+      },
+      "source": {
+        "type": "github",
+        "url": "https://github.com/greenshot/greenshot"
+      },
+      "install": {
+        "method": "manual",
+        "package_manager": "ninite/choco"
+      },
+      "upgrade": {
+        "method": "in-place",
+        "path": "Choco",
+        "requires_reboot": true
+      },
+      "history": [
+        {
+          "version": "1.3.312",
+          "release_date": "2026-01-07",
+          "noted_on": "2026-02-02",
+          "notes": "Initial tracking entry"
+        }
+      ]
+    },
+    {
+      "id": "everything",
+      "name": "Search Everything",
+      "vendor": "voidtools",
+      "category": "Searching",
+      "current": {
+        "version": "1.4.1.1030",
+        "release_date": "2024-01-01"
+      },
+      "source": {
+        "type": "website",
+        "url": "https://www.voidtools.com/support/everything/previous_versions/"
+      },
+      "install": {
+        "method": "manual",
+        "package_manager": "ninite/choco"
+      },
+      "upgrade": {
+        "method": "in-place",
+        "path": "Ninite",
+        "requires_reboot": true
+      },
+      "history": [
+        {
+          "version": "1.4.1.1030",
+          "release_date": "2024-01-01",
+          "noted_on": "2026-02-02",
+          "notes": "Initial tracking entry"
+        }
+      ]
+    },
+    {
+      "id": "powertoys",
+      "name": "PowerToys",
+      "vendor": "Microsoft",
+      "category": "Productivity",
+      "current": {
+        "version": "0.97.1",
+        "release_date": "2026-01-28"
+      },
+      "source": {
+        "type": "github",
+        "url": "https://github.com/microsoft/PowerToys/releases"
+      },
+      "install": {
+        "method": "manual",
+        "package_manager": "choco"
+      },
+      "upgrade": {
+        "method": "in-place",
+        "path": "Choco",
+        "requires_reboot": true
+      },
+      "history": [
+        {
+          "version": "0.97.1",
+          "release_date": "2026-01-28",
+          "noted_on": "2026-02-02",
+          "notes": "Initial tracking entry"
+        }
+      ]
+    },
+    {
+      "id": "3dclipboard",
+      "name": "3D Clipboard",
+      "vendor": "3D Clipboard",
+      "category": "Productivity",
+      "current": {
+        "version": "1.5.1.28",
+        "release_date": "2012-10-22"
+      },
+      "source": {
+        "type": "website",
+        "url": "https://www.3dclipboard.com/"
+      },
+      "install": {
+        "method": "manual",
+        "package_manager": "n/a"
+      },
+      "upgrade": {
+        "method": "in-place",
+        "path": "n/a",
+        "requires_reboot": true
+      },
+      "history": [
+        {
+          "version": "1.5.1.28",
+          "release_date": "2012-10-22",
+          "noted_on": "2026-02-02",
+          "notes": "Initial tracking entry"
         }
       ]
     }

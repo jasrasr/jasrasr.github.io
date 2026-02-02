@@ -1,13 +1,17 @@
+#Requires -Version 7.0
 <#
   File: Import-UpdatesCsv.ps1
   Project: Updates Tracker
   Author: Jason Lamb
   Created Date: 2026-02-02
   Modified Date: 2026-02-02
-  Revision: 1.1
+  Revision: 1.4
   Change Log:
-    - 1.0 Initial bulk CSV import helper
-    - 1.1 Write per-row ImportStatus back to CSV
+    - 1.0 Initial CSV import
+    - 1.1 ImportStatus column
+    - 1.2 Add Build field
+    - 1.3 Bug fixes and cleanup
+    - 1.4 PS7-only, simplified null handling, final schema alignment
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
@@ -35,8 +39,11 @@ $existingIds = @($data.updates.id)
 
 $rows = Import-Csv $CsvPath
 
+# Ensure ImportStatus column exists
 if (-not ($rows | Get-Member -Name ImportStatus)) {
-    $rows | ForEach-Object { $_ | Add-Member ImportStatus '' }
+    $rows | ForEach-Object {
+        $_ | Add-Member -MemberType NoteProperty -Name ImportStatus -Value ''
+    }
 }
 
 $newEntries = @()
@@ -49,8 +56,13 @@ foreach ($row in $rows) {
 
     $row.ImportStatus = ''
 
-    $required = @('Id','Name','Vendor','Category','Version','ReleaseDate','SourceType','SourceUrl')
-    $missing  = $required | Where-Object { -not $row.$_ }
+    $required = @(
+        'Id','Name','Vendor','Category',
+        'Version','ReleaseDate',
+        'SourceType','SourceUrl'
+    )
+
+    $missing = $required | Where-Object { -not $row.$_ }
 
     if ($missing) {
         $row.ImportStatus = "Error: Missing $($missing -join ', ')"
@@ -62,58 +74,74 @@ foreach ($row in $rows) {
         continue
     }
 
-    try {
-        $entry = [ordered]@{
-            id       = $row.Id
-            name     = $row.Name
-            vendor   = $row.Vendor
-            category = $row.Category
+    # ---- Normalize values -------------------------------------
 
-            current = [ordered]@{
-                version      = $row.Version
-                release_date = ([datetime]$row.ReleaseDate).ToString('yyyy-MM-dd')
-            }
+    $notes = $row.Notes ?? 'Initial tracking entry'
+    $requiresReboot = [bool]($row.RequiresReboot ?? $false)
 
-            source = [ordered]@{
-                type = $row.SourceType
-                url  = $row.SourceUrl
-            }
+    # ---- Current ----------------------------------------------
 
-            install = [ordered]@{
-                method          = $row.InstallMethod
-                package_manager = $row.PackageManager
-                silent_switches = $null
-            }
+    $current = [ordered]@{
+        version      = $row.Version
+        release_date = ([datetime]$row.ReleaseDate).ToString('yyyy-MM-dd')
+    }
 
-            upgrade = [ordered]@{
-                method          = $row.UpgradeMethod
-                path            = $row.UpgradePath
-                requires_reboot = [bool]::Parse($row.RequiresReboot ?? 'false')
-            }
+    if ($row.Build) {
+        $current.build = $row.Build
+    }
 
-            history = @(
-                [ordered]@{
-                    version      = $row.Version
-                    release_date = ([datetime]$row.ReleaseDate).ToString('yyyy-MM-dd')
-                    noted_on     = (Get-Date).ToString('yyyy-MM-dd')
-                    notes        = $row.Notes ?? 'Initial tracking entry'
-                }
-            )
+    # ---- History ----------------------------------------------
+
+    $history = [ordered]@{
+        version      = $row.Version
+        release_date = ([datetime]$row.ReleaseDate).ToString('yyyy-MM-dd')
+        noted_on     = (Get-Date).ToString('yyyy-MM-dd')
+        notes        = $notes
+    }
+
+    if ($row.Build) {
+        $history.build = $row.Build
+    }
+
+    # ---- Assemble entry ---------------------------------------
+
+    $newEntries += [ordered]@{
+        id       = $row.Id
+        name     = $row.Name
+        vendor   = $row.Vendor
+        category = $row.Category
+
+        current  = $current
+
+        source   = [ordered]@{
+            type = $row.SourceType
+            url  = $row.SourceUrl
         }
 
-        $newEntries += $entry
-        $row.ImportStatus = 'Added'
+        install  = [ordered]@{
+            method          = $row.InstallMethod
+            package_manager = $row.PackageManager
+        }
+
+        upgrade  = [ordered]@{
+            method          = $row.UpgradeMethod
+            path            = $row.UpgradePath
+            requires_reboot = $requiresReboot
+        }
+
+        history  = @($history)
     }
-    catch {
-        $row.ImportStatus = "Error: $_"
-    }
+
+    $row.ImportStatus = 'Added'
 }
 
 # ------------------------------------------------------------
 # Write JSON
 # ------------------------------------------------------------
 
-if ($newEntries.Count -gt 0 -and $PSCmdlet.ShouldProcess('updates.json', 'Add new update entries')) {
+if ($newEntries.Count -gt 0 -and
+    $PSCmdlet.ShouldProcess('updates.json', "Add $($newEntries.Count) new entries")) {
+
     $data.updates += $newEntries
     $data.last_updated = (Get-Date).ToString('yyyy-MM-dd')
 
@@ -126,9 +154,7 @@ if ($newEntries.Count -gt 0 -and $PSCmdlet.ShouldProcess('updates.json', 'Add ne
 # Write CSV back
 # ------------------------------------------------------------
 
-if ($PSCmdlet.ShouldProcess($CsvPath, 'Update ImportStatus column')) {
-    $rows | Export-Csv $CsvPath -NoTypeInformation
-}
+$rows | Export-Csv $CsvPath -NoTypeInformation
 
 # ------------------------------------------------------------
 # Summary
@@ -139,6 +165,7 @@ Write-Host "Import Summary" -ForegroundColor Green
 Write-Host "  Added   : $($rows | Where-Object ImportStatus -eq 'Added' | Measure-Object | Select-Object -Expand Count)"
 Write-Host "  Skipped : $($rows | Where-Object ImportStatus -eq 'Skipped (Exists)' | Measure-Object | Select-Object -Expand Count)"
 Write-Host "  Errors  : $($rows | Where-Object ImportStatus -like 'Error*' | Measure-Object | Select-Object -Expand Count)"
+
 
 # ------------------------------------------------------------
 # Usage Examples

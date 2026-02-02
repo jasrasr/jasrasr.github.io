@@ -1,115 +1,265 @@
-<!DOCTYPE html>
 <!--
   File: index.html
   Project: Updates Tracker
   Author: Jason Lamb
-  Created: 2026-02-02
-  Revision: 1.0
-  Description:
-  Read-only frontend for tracking software updates, versions,
-  release dates, sources, and upgrade paths.
+  Created Date: 2026-02-01
+  Modified Date: 2026-02-02
+  Revision: 1.2
+  Change Log:
+    - 1.0 Initial updates dashboard
+    - 1.1 Display build alongside version when present
+    - 1.2 Add sortability
 -->
 
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Updates Tracker</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8" />
+<title>Updates Tracker</title>
 
-  <style>
+<style>
     body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      margin: 20px;
-      background: #f6f7f9;
-      color: #222;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+        background: #fafafa;
+        margin: 0;
+        padding: 32px;
+        color: #111;
     }
 
     h1 {
-      margin-bottom: 5px;
+        margin: 0 0 4px 0;
+        font-size: 28px;
+        font-weight: 700;
     }
 
     .subtitle {
-      color: #555;
-      margin-bottom: 20px;
+        color: #555;
+        margin-bottom: 24px;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        overflow: hidden;
     }
 
     table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: #f1f3f5;
     }
 
     th, td {
-      padding: 10px 12px;
-      border-bottom: 1px solid #e0e0e0;
-      text-align: left;
-      vertical-align: top;
+        padding: 14px 16px;
+        text-align: left;
+        vertical-align: top;
+        border-bottom: 1px solid #e5e7eb;
     }
 
     th {
-      background: #f0f2f5;
-      font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: #444;
+        cursor: pointer;
+        user-select: none;
+        position: relative;
     }
 
-    tr:hover {
-      background: #f9fafb;
+    th:hover {
+        background: #e9ecef;
     }
 
-    .status-green { color: #2e7d32; font-weight: 600; }
-    .status-yellow { color: #f57c00; font-weight: 600; }
-    .status-red { color: #c62828; font-weight: 600; }
-
-    .small {
-      font-size: 0.85em;
-      color: #666;
+    th .sort {
+        font-size: 11px;
+        margin-left: 6px;
+        opacity: .4;
     }
 
-    footer {
-      margin-top: 25px;
-      font-size: 0.85em;
-      color: #666;
+    th.active .sort {
+        opacity: 1;
+    }
+
+    tr:hover td {
+        background: #f9fafb;
+    }
+
+    .name {
+        font-weight: 600;
+    }
+
+    .vendor {
+        font-size: 13px;
+        color: #666;
+        margin-top: 2px;
+    }
+
+    .version {
+        font-weight: 600;
+    }
+
+    .pill {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .pill.green {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .pill.red {
+        background: #fee2e2;
+        color: #7f1d1d;
+    }
+
+    .upgrade-method {
+        font-weight: 600;
+    }
+
+    .upgrade-path {
+        font-size: 13px;
+        color: #555;
+        margin-top: 2px;
     }
 
     a {
-      color: #1565c0;
-      text-decoration: none;
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 500;
     }
 
     a:hover {
-      text-decoration: underline;
+        text-decoration: underline;
     }
-  </style>
+
+    .footer {
+        margin-top: 12px;
+        font-size: 13px;
+        color: #666;
+    }
+</style>
 </head>
 
 <body>
 
 <h1>Updates Tracker</h1>
-<div class="subtitle">
-  Tracking software updates, versions, sources, and upgrade paths.
+<div class="subtitle">Tracking software updates, versions, sources, and upgrade paths.</div>
+
+<div class="card">
+<table id="updatesTable">
+    <thead>
+        <tr>
+            <th data-key="name">Name <span class="sort">↕</span></th>
+            <th data-key="version">Current Version <span class="sort">↕</span></th>
+            <th data-key="release">Release Date <span class="sort">↕</span></th>
+            <th data-key="days">Days Since Release <span class="sort">↕</span></th>
+            <th data-key="upgrade">Upgrade Method <span class="sort">↕</span></th>
+            <th data-key="source">Source <span class="sort">↕</span></th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
 </div>
 
-<table id="updatesTable">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Current Version</th>
-      <th>Release Date</th>
-      <th>Days Since Release</th>
-      <th>Upgrade Method</th>
-      <th>Source</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- Populated by app.js -->
-  </tbody>
-</table>
+<div class="footer">
+    Source of truth: <strong>updates.json</strong><br>
+    History preserved via Git commits
+</div>
 
-<footer>
-  Source of truth: <strong>updates.json</strong><br>
-  History preserved via Git commits
-</footer>
+<script>
+let updates = [];
+let sortKey = null;
+let sortAsc = true;
 
-<script src="app.js"></script>
+fetch('updates.json')
+    .then(r => r.json())
+    .then(data => {
+        updates = data.updates.map(u => {
+            const release = new Date(u.current.release_date);
+            const days = Math.floor((Date.now() - release) / 86400000);
+
+            const version = u.current.build
+                ? `${u.current.version} (${u.current.build})`
+                : u.current.version;
+
+            return {
+                raw: u,
+                name: u.name,
+                vendor: u.vendor,
+                version,
+                release: u.current.release_date,
+                days,
+                upgrade: u.upgrade.method,
+                source: u.source.type
+            };
+        });
+
+        render();
+    });
+
+function render() {
+    const tbody = document.querySelector('#updatesTable tbody');
+    tbody.innerHTML = '';
+
+    let rows = [...updates];
+
+    if (sortKey) {
+        rows.sort((a,b) => {
+            let x = a[sortKey];
+            let y = b[sortKey];
+            if (typeof x === 'number') return sortAsc ? x - y : y - x;
+            return sortAsc
+                ? String(x).localeCompare(String(y))
+                : String(y).localeCompare(String(x));
+        });
+    }
+
+    rows.forEach(r => {
+        const pillClass = r.days <= 30 ? 'green' : 'red';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>
+                <div class="name">${r.name}</div>
+                <div class="vendor">${r.vendor}</div>
+            </td>
+            <td class="version">${r.version}</td>
+            <td>${r.release}</td>
+            <td><span class="pill ${pillClass}">${r.days}</span></td>
+            <td>
+                <div class="upgrade-method">${r.raw.upgrade.method}</div>
+                <div class="upgrade-path">${r.raw.upgrade.path ?? ''}</div>
+            </td>
+            <td>
+                <a href="${r.raw.source.url}" target="_blank">${r.raw.source.type}</a>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    document.querySelectorAll('th').forEach(th => th.classList.remove('active'));
+    if (sortKey) {
+        document.querySelector(`th[data-key="${sortKey}"]`)?.classList.add('active');
+    }
+}
+
+document.querySelectorAll('th').forEach(th => {
+    th.addEventListener('click', () => {
+        const key = th.dataset.key;
+        sortAsc = sortKey === key ? !sortAsc : true;
+        sortKey = key;
+        render();
+    });
+});
+</script>
+
 </body>
 </html>

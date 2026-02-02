@@ -4,77 +4,44 @@
   Author: Jason Lamb
   Created Date: 2026-02-02
   Modified Date: 2026-02-02
-  Revision: 1.0
+  Revision: 1.1
   Change Log:
     - 1.0 Initial helper to safely update updates.json
+    - 1.1 Add optional Build support
 #>
 
 param (
-    [Parameter(Mandatory)]
-    [string]$Id,
-
-    [Parameter(Mandatory)]
-    [string]$Version,
-
-    [Parameter(Mandatory)]
-    [datetime]$ReleaseDate,
-
-    [string]$Notes = '',
-
-    [string]$JsonPath = '.\updates.json'
+    [Parameter(Mandatory)][string]$Id,
+    [Parameter(Mandatory)][string]$Version,
+    [string]$Build,
+    [Parameter(Mandatory)][datetime]$ReleaseDate,
+    [string]$Notes = 'Update recorded'
 )
 
-# --- Validation ----------------------------------------------------
+$data = Get-Content .\updates.json -Raw | ConvertFrom-Json
+$update = $data.updates | Where-Object id -eq $Id
+if (-not $update) { throw "No update entry found with id '$Id'" }
 
-if (-not (Test-Path $JsonPath)) {
-    throw "updates.json not found at path: $JsonPath"
+$current = @{
+    version      = $Version
+    release_date = $ReleaseDate.ToString('yyyy-MM-dd')
 }
+if ($Build) { $current.build = $Build }
 
-# --- Load JSON -----------------------------------------------------
+$update.current = $current
 
-$jsonRaw = Get-Content $JsonPath -Raw
-$data    = $jsonRaw | ConvertFrom-Json
-
-$update = $data.updates | Where-Object { $_.id -eq $Id }
-
-if (-not $update) {
-    throw "No update entry found with id '$Id'"
-}
-
-# --- Preserve existing current into history -----------------------
-
-$existing = $update.current
-
-$historyEntry = [ordered]@{
+$history = @{
     version      = $Version
     release_date = $ReleaseDate.ToString('yyyy-MM-dd')
     noted_on     = (Get-Date).ToString('yyyy-MM-dd')
     notes        = $Notes
 }
+if ($Build) { $history.build = $Build }
 
-# --- Insert new history entry (newest first) ----------------------
-
-$update.history = @($historyEntry) + $update.history
-
-# --- Update current ------------------------------------------------
-
-$update.current.version      = $Version
-$update.current.release_date = $ReleaseDate.ToString('yyyy-MM-dd')
-
-# --- Update root metadata -----------------------------------------
-
+$update.history = @($history) + $update.history
 $data.last_updated = (Get-Date).ToString('yyyy-MM-dd')
 
-# --- Write JSON back (stable formatting) ---------------------------
-
-$data |
-    ConvertTo-Json -Depth 6 |
-    Set-Content -Path $JsonPath -Encoding UTF8
-
-Write-Host "Update applied successfully:" -ForegroundColor Green
-Write-Host "  ID       : $Id"
-Write-Host "  Version  : $Version"
-Write-Host "  Released : $($ReleaseDate.ToString('yyyy-MM-dd'))"
+$data | ConvertTo-Json -Depth 6 | Set-Content .\updates.json -Encoding UTF8
 
 <#
 # Example 1: Add a new PowerShell release

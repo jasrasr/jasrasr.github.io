@@ -4,11 +4,13 @@
   Author: Jason Lamb
   Created Date: 2026-02-02
   Modified Date: 2026-02-02
-  Revision: 1.2
+  Revision: 1.4
   Change Log:
-    - 1.0 Initial JSON validation helper
-    - 1.1 Attempted TryParse fix
-    - 1.2 Replace TryParse with PowerShell-native date validation
+    - 1.0 Initial validator
+    - 1.1 TryParse attempt
+    - 1.2 Switch to Get-Date validation
+    - 1.3 Add build consistency warnings
+    - 1.4 Centralized required-field validation
 #>
 
 param (
@@ -16,8 +18,10 @@ param (
 )
 
 # ------------------------------------------------------------
-# Helpers
+# State + helpers
 # ------------------------------------------------------------
+
+$script:HasErrors = $false
 
 function Fail {
     param ([string]$Message)
@@ -30,7 +34,20 @@ function Warn {
     Write-Host "WARNING: $Message" -ForegroundColor Yellow
 }
 
-$HasErrors = $false
+function Test-RequiredFields {
+    param (
+        [Parameter(Mandatory)][object]$Object,
+        [Parameter(Mandatory)][string[]]$RequiredFields,
+        [Parameter(Mandatory)][string]$Context
+    )
+
+    $props = $Object.PSObject.Properties.Name
+    foreach ($field in $RequiredFields) {
+        if ($props -notcontains $field) {
+            Fail "$Context missing required field: $field"
+        }
+    }
+}
 
 # ------------------------------------------------------------
 # File existence
@@ -42,7 +59,7 @@ if (-not (Test-Path $JsonPath)) {
 }
 
 # ------------------------------------------------------------
-# JSON syntax validation
+# JSON parse
 # ------------------------------------------------------------
 
 try {
@@ -58,16 +75,13 @@ catch {
 # Top-level structure
 # ------------------------------------------------------------
 
-if (-not $data.schema_version) {
-    Fail "Missing top-level property: schema_version"
-}
+Test-RequiredFields `
+    -Object $data `
+    -RequiredFields @('schema_version','last_updated','updates') `
+    -Context 'Root object'
 
-if (-not $data.last_updated) {
-    Fail "Missing top-level property: last_updated"
-}
-
-if (-not $data.updates -or -not ($data.updates -is [System.Collections.IEnumerable])) {
-    Fail "Missing or invalid 'updates' array"
+if (-not ($data.updates -is [System.Collections.IEnumerable])) {
+    Fail "'updates' is not an array"
     return
 }
 
@@ -86,37 +100,31 @@ foreach ($d in $dupes) {
 # Per-update validation
 # ------------------------------------------------------------
 
-$requiredUpdateFields = @(
-    'id','name','vendor','category','current','source','install','upgrade','history'
-)
-
 foreach ($update in $data.updates) {
 
-    foreach ($field in $requiredUpdateFields) {
-        if (-not $update.$field) {
-            Fail "Update '$($update.id)' missing required field: $field"
-        }
+    Test-RequiredFields `
+        -Object $update `
+        -RequiredFields @(
+            'id','name','vendor','category',
+            'current','source','install','upgrade','history'
+        ) `
+        -Context "Update '$($update.id)'"
+
+    # --- current -------------------------------------------------
+
+    Test-RequiredFields `
+        -Object $update.current `
+        -RequiredFields @('version','release_date') `
+        -Context "Update '$($update.id)' current"
+
+    try {
+        [void](Get-Date $update.current.release_date)
+    }
+    catch {
+        Fail "Update '$($update.id)' current.release_date is not a valid date"
     }
 
-    # --- Current ---------------------------------------------------
-
-    if (-not $update.current.version) {
-        Fail "Update '$($update.id)' missing current.version"
-    }
-
-    if (-not $update.current.release_date) {
-        Fail "Update '$($update.id)' missing current.release_date"
-    }
-    else {
-        try {
-            [void](Get-Date $update.current.release_date)
-        }
-        catch {
-            Fail "Update '$($update.id)' has invalid current.release_date"
-        }
-    }
-
-    # --- History ---------------------------------------------------
+    # --- history -------------------------------------------------
 
     if (-not $update.history -or $update.history.Count -eq 0) {
         Fail "Update '$($update.id)' has empty history array"
@@ -125,34 +133,43 @@ foreach ($update in $data.updates) {
 
     foreach ($h in $update.history) {
 
-        foreach ($hf in @('version','release_date','noted_on')) {
-            if (-not $h.$hf) {
-                Fail "Update '$($update.id)' history entry missing field: $hf"
-            }
-        }
+        Test-RequiredFields `
+            -Object $h `
+            -RequiredFields @('version','release_date','noted_on') `
+            -Context "Update '$($update.id)' history entry"
 
         foreach ($df in @('release_date','noted_on')) {
-            if ($h.$df) {
-                try {
-                    [void](Get-Date $h.$df)
-                }
-                catch {
-                    Fail "Update '$($update.id)' history has invalid date in $df"
-                }
+            try {
+                [void](Get-Date $h.$df)
+            }
+            catch {
+                Fail "Update '$($update.id)' history has invalid date in $df"
             }
         }
     }
 
-    # --- Logical consistency --------------------------------------
+    # --- logical consistency ------------------------------------
 
     $latestHistory = $update.history | Select-Object -First 1
 
     if ($latestHistory.version -ne $update.current.version) {
-        Warn "Update '$($update.id)' current.version does not match latest history entry"
+        Warn "Update '$($update.id)' current.version does not match latest history version"
     }
 
     if ($latestHistory.release_date -ne $update.current.release_date) {
-        Warn "Update '$($update.id)' current.release_date does not match latest history entry"
+        Warn "Update '$($update.id)' current.release_date does not match latest history release_date"
+    }
+
+    # --- build consistency (optional) ---------------------------
+
+    if ($update.current.PSObject.Properties.Name -contains 'build') {
+
+        if (-not ($latestHistory.PSObject.Properties.Name -contains 'build')) {
+            Warn "Update '$($update.id)' has current.build but no build in latest history entry"
+        }
+        elseif ($update.current.build -ne $latestHistory.build) {
+            Warn "Update '$($update.id)' build does not match latest history build"
+        }
     }
 }
 
@@ -162,12 +179,14 @@ foreach ($update in $data.updates) {
 
 Write-Host "----------------------------------------"
 
-if ($HasErrors) {
+if ($script:HasErrors) {
     Write-Host "Validation FAILED" -ForegroundColor Red
 }
 else {
     Write-Host "Validation PASSED" -ForegroundColor Green
 }
+
+
 
 
 # Example Usage
