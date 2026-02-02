@@ -19,6 +19,10 @@ Change Log:
   - Changed to 2-column grid layout for better mobile experience
   - Allows adding more items in rows of 2
 - 1.2.1 remove \n typo
+- 1.3 (2026-02-02)
+  - Changed to 3-column grid layout (1 column on mobile)
+  - Increased minimum height for easier finger pressing
+  - Added responsive design for different screen sizes
 -->
 <html lang="en">
 <head>
@@ -43,8 +47,10 @@ Change Log:
         /* ===== Link Grid ===== */
         .links {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-auto-rows: minmax(120px, 1fr);
+            grid-template-columns: repeat(3, 1fr);
+            grid-auto-rows: minmax(140px, auto);
+            gap: 0;
+            overflow-y: auto;
         }
 
         .link-area {
@@ -53,9 +59,11 @@ Change Log:
             align-items: center;
             text-decoration: none;
             color: white;
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 600;
             text-align: center;
+            padding: 20px;
+            min-height: 140px;
             transition: transform 0.1s ease, opacity 0.1s ease;
         }
 
@@ -82,9 +90,25 @@ Change Log:
             border-top: 1px solid #ddd;
         }
 
-        @media (max-width: 600px) {
+        /* Tablet: 2 columns */
+        @media (max-width: 900px) {
+            .links {
+                grid-template-columns: repeat(2, 1fr);
+            }
             .link-area {
                 font-size: 1.6rem;
+                min-height: 130px;
+            }
+        }
+
+        /* Mobile: 1 column for easy finger pressing */
+        @media (max-width: 600px) {
+            .links {
+                grid-template-columns: 1fr;
+            }
+            .link-area {
+                font-size: 1.8rem;
+                min-height: 120px;
             }
         }
     </style>
@@ -102,6 +126,9 @@ Change Log:
         <!-- Just keep adding more -->
         <!-- <a href="page5.html" class="link-area">Page 5</a> -->
         <!-- <a href="page6.html" class="link-area">Page 6</a> -->
+        <!-- <a href="page7.html" class="link-area">Page 7</a> -->
+        <!-- <a href="page8.html" class="link-area">Page 8</a> -->
+        <!-- <a href="page9.html" class="link-area">Page 9</a> -->
     </div>
 
     <!-- ===== FOOTER ===== -->
@@ -113,7 +140,7 @@ Change Log:
             Change revision ONCE here
         */
         const fileName = 'links.html';
-        const revision = '1.2.1';
+        const revision = '1.3';
         const year = new Date().getFullYear();
         const modified = new Date().toLocaleDateString();
 
