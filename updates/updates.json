@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "last_updated": "2026-02-02",
+  "updates": [
+    {
+      "id": "notepadpp",
+      "name": "Notepad++",
+      "vendor": "Don Ho",
+      "category": "Text Editor",
+
+      "current": {
+        "version": "8.6.3",
+        "release_date": "2025-01-15"
+      },
+
+      "source": {
+        "type": "website",
+        "url": "https://notepad-plus-plus.org/downloads/"
+      },
+
+      "install": {
+        "method": "manual",
+        "package_manager": null,
+        "silent_switches": "/S"
+      },
+
+      "upgrade": {
+        "method": "in-place",
+        "path": "Download installer → run over existing install",
+        "requires_reboot": false
+      },
+
+      "history": [
+        {
+          "version": "8.6.3",
+          "release_date": "2025-01-15",
+          "noted_on": "2025-01-20",
+          "notes": "Security and performance fixes"
+        },
+        {
+          "version": "8.6.2",
+          "release_date": "2024-12-02",
+          "noted_on": "2024-12-05"
+        }
+      ]
+    }
+  ]
+}
