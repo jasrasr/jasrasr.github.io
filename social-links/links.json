@@ -1,0 +1,67 @@
+{
+  "_meta": {
+    "filename": "links.json",
+    "author": "Jason Lamb (with help from ChatGPT)",
+    "created_date": "2026-02-27",
+    "modified_date": "2026-02-27",
+    "revision": "2.0",
+    "changelog": [
+      "2.0 - JSON-driven social tiles + revision footer + tracking/analytics support"
+    ]
+  },
+  "page": {
+    "title": "Jason Lamb",
+    "subtitle": "Tap a tile. Escape the algorithm. Touch grass later.",
+    "footerText": "JasonLamb.me • Social Hub"
+  },
+  "tiles": [
+    {
+      "id": "github",
+      "name": "Github",
+      "hint": "github.com/jasrasr",
+      "url": "https://github.com/jasrasr",
+      "image": "img/github.png",
+      "badge": "GH"
+    },
+    {
+      "id": "facebook",
+      "name": "Facebook",
+      "hint": "facebook.com/jasrasr",
+      "url": "https://facebook.com/jasrasr",
+      "image": "img/facebook.png",
+      "badge": "FB"
+    },
+    {
+      "id": "youtube",
+      "name": "YouTube",
+      "hint": "youtube.com/jasrasr",
+      "url": "https://youtube.com/jasrasr",
+      "image": "img/youtube.png",
+      "badge": "YT"
+    },
+    {
+      "id": "twitter",
+      "name": "X / Twitter",
+      "hint": "twitter.com/jasrasr",
+      "url": "https://twitter.com/jasrasr",
+      "image": "img/twitter.png",
+      "badge": "X"
+    },
+    {
+      "id": "instagram",
+      "name": "Instagram",
+      "hint": "instagram.com/jasrasr",
+      "url": "https://instagram.com/jasrasr",
+      "image": "img/instagram.png",
+      "badge": "IG"
+    },
+    {
+      "id": "website",
+      "name": "JasonLamb.me",
+      "hint": "jasonlamb.me",
+      "url": "https://jasonlamb.me",
+      "image": "img/website.png",
+      "badge": "Web"
+    }
+  ]
+}

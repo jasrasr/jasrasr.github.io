@@ -1,0 +1,50 @@
+<!--
+File: index.html
+Author: Jason Lamb (generated with ChatGPT)
+Created: 2026-02-27
+Modified: 2026-02-27
+Revision: 2.0
+
+Changelog:
+2.0 - JSON-driven social grid with tile images, handwritten font, glow hover, tracking, and analytics logging
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Jason Lamb | Social Links</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Handwritten-ish font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <main class="wrap">
+    <header class="top">
+      <h1 id="pageTitle">Social</h1>
+      <p id="pageSubtitle" class="subtitle"></p>
+    </header>
+
+    <section id="grid" class="grid" aria-label="Social media links">
+      <!-- Cards injected by app.js -->
+    </section>
+
+    <footer class="footer">
+      <div class="footer-left">
+        <span id="footerText"></span>
+      </div>
+      <div class="footer-right">
+        <span id="footerRev"></span>
+      </div>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
