@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<!--
+Filename: index.html
+Author: Jason Lamb
+Revision: 1.1
+Description: Year progress calculator with default-to-today behavior.
+Changelog:
+1.1 - Defaults to today's date, auto-calculates on load, recalculates on change.
+-->
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Year Progress Calculator</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    text-align: center;
+    padding: 40px;
+}
+
+.container {
+    max-width: 600px;
+    margin: auto;
+    background: #1e293b;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+}
+
+input {
+    padding: 10px;
+    font-size: 16px;
+    margin: 10px 0;
+    width: 200px;
+}
+
+.results {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.progress-bar {
+    height: 25px;
+    background: #334155;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    text-align: center;
+    line-height: 25px;
+    color: white;
+    font-weight: bold;
+    transition: width 0.6s ease;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Year Progress Calculator</h1>
+    <p>Start date (defaults to today):</p>
+
+    <input type="date" id="startDate">
+
+    <div class="results" id="results"></div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+</div>
+
+<script>
+
+function calculate() {
+
+    const startDateInput = document.getElementById("startDate").value;
+    const startDate = new Date(startDateInput);
+    const today = new Date();
+
+    const msPerDay = 1000 * 60 * 60 * 24;
+
+    // ---- Time Since Start Date ----
+    const elapsedDays = Math.floor((today - startDate) / msPerDay);
+    const elapsedWeeks = (elapsedDays / 7).toFixed(2);
+    const elapsedMonths = (elapsedDays / 30.44).toFixed(2);
+
+    // ---- Year Progress ----
+    const year = today.getFullYear();
+    const yearStart = new Date(year, 0, 1);
+    const yearEnd = new Date(year, 11, 31);
+
+    const totalYearDays = Math.floor((yearEnd - yearStart) / msPerDay) + 1;
+    const daysIntoYear = Math.floor((today - yearStart) / msPerDay) + 1;
+    const daysRemaining = totalYearDays - daysIntoYear;
+
+    const percentComplete = ((daysIntoYear / totalYearDays) * 100).toFixed(2);
+    const weeksRemaining = (daysRemaining / 7).toFixed(2);
+    const monthsRemaining = (daysRemaining / 30.44).toFixed(2);
+
+    document.getElementById("results").innerHTML = `
+        <h3>Time Since ${startDate.toLocaleDateString()}</h3>
+        <p><strong>Days:</strong> ${elapsedDays}</p>
+        <p><strong>Weeks:</strong> ${elapsedWeeks}</p>
+        <p><strong>Months:</strong> ${elapsedMonths}</p>
+
+        <h3>Year ${year} Progress</h3>
+        <p><strong>Percent Complete:</strong> ${percentComplete}%</p>
+        <p><strong>Days Remaining:</strong> ${daysRemaining}</p>
+        <p><strong>Weeks Remaining:</strong> ${weeksRemaining}</p>
+        <p><strong>Months Remaining:</strong> ${monthsRemaining}</p>
+    `;
+
+    const progressFill = document.getElementById("progressFill");
+    progressFill.style.width = percentComplete + "%";
+    progressFill.textContent = percentComplete + "%";
+}
+
+// ---- On Load ----
+window.onload = function() {
+    const today = new Date();
+    const isoToday = today.toISOString().split("T")[0];
+    const input = document.getElementById("startDate");
+    input.value = isoToday;
+
+    calculate();
+
+    input.addEventListener("change", calculate);
+};
+
+</script>
+
+</body>
+</html>
