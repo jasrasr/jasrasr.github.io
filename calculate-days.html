@@ -2,10 +2,13 @@
 <!--
 Filename: index.html
 Author: Jason Lamb
-Revision: 1.1
-Description: Year progress calculator with default-to-today behavior.
+Revision: 1.4
+Description: Year progress calculator with deterministic year boundary math.
 Changelog:
-1.1 - Defaults to today's date, auto-calculates on load, recalculates on change.
+1.1 - Default to today, auto-calc on load.
+1.2 - Fixed UTC date parsing issues.
+1.3 - Display selected ISO date to avoid timezone shifts.
+1.4 - Rewrote year math to use Jan 1 → Jan 1 next year boundary model.
 -->
 
 <html lang="en">
@@ -36,7 +39,7 @@ input {
     padding: 10px;
     font-size: 16px;
     margin: 10px 0;
-    width: 200px;
+    width: 220px;
 }
 
 .results {
@@ -49,7 +52,7 @@ input {
     background: #334155;
     border-radius: 5px;
     overflow: hidden;
-    margin-top: 10px;
+    margin-top: 15px;
 }
 
 .progress-fill {
@@ -82,41 +85,57 @@ input {
 
 <script>
 
+const msPerDay = 1000 * 60 * 60 * 24;
+
+// Parse ISO date safely as local date
+function parseLocalDate(input) {
+    const parts = input.split("-");
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+
+// Remove time portion
+function stripTime(date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
 function calculate() {
 
     const startDateInput = document.getElementById("startDate").value;
-    const startDate = new Date(startDateInput);
-    const today = new Date();
+    if (!startDateInput) return;
 
-    const msPerDay = 1000 * 60 * 60 * 24;
+    const today = stripTime(new Date());
+    const startDate = stripTime(parseLocalDate(startDateInput));
 
     // ---- Time Since Start Date ----
-    const elapsedDays = Math.floor((today - startDate) / msPerDay);
+    let elapsedDays = Math.floor((today - startDate) / msPerDay);
+    if (elapsedDays < 0) elapsedDays = 0;
+
     const elapsedWeeks = (elapsedDays / 7).toFixed(2);
     const elapsedMonths = (elapsedDays / 30.44).toFixed(2);
 
-    // ---- Year Progress ----
+    // ---- Year Progress (Jan 1 → Jan 1 next year) ----
     const year = today.getFullYear();
     const yearStart = new Date(year, 0, 1);
-    const yearEnd = new Date(year, 11, 31);
+    const nextYearStart = new Date(year + 1, 0, 1);
 
-    const totalYearDays = Math.floor((yearEnd - yearStart) / msPerDay) + 1;
-    const daysIntoYear = Math.floor((today - yearStart) / msPerDay) + 1;
+    const totalYearDays = (nextYearStart - yearStart) / msPerDay;
+    const daysIntoYear = (today - yearStart) / msPerDay;
     const daysRemaining = totalYearDays - daysIntoYear;
 
     const percentComplete = ((daysIntoYear / totalYearDays) * 100).toFixed(2);
     const weeksRemaining = (daysRemaining / 7).toFixed(2);
     const monthsRemaining = (daysRemaining / 30.44).toFixed(2);
 
+    // ---- Render ----
     document.getElementById("results").innerHTML = `
-        <h3>Time Since ${startDate.toLocaleDateString()}</h3>
+        <h3>Time Since ${startDateInput}</h3>
         <p><strong>Days:</strong> ${elapsedDays}</p>
         <p><strong>Weeks:</strong> ${elapsedWeeks}</p>
         <p><strong>Months:</strong> ${elapsedMonths}</p>
 
         <h3>Year ${year} Progress</h3>
         <p><strong>Percent Complete:</strong> ${percentComplete}%</p>
-        <p><strong>Days Remaining:</strong> ${daysRemaining}</p>
+        <p><strong>Days Remaining:</strong> ${Math.floor(daysRemaining)}</p>
         <p><strong>Weeks Remaining:</strong> ${weeksRemaining}</p>
         <p><strong>Months Remaining:</strong> ${monthsRemaining}</p>
     `;
@@ -131,10 +150,10 @@ window.onload = function() {
     const today = new Date();
     const isoToday = today.toISOString().split("T")[0];
     const input = document.getElementById("startDate");
+
     input.value = isoToday;
 
     calculate();
-
     input.addEventListener("change", calculate);
 };
 
