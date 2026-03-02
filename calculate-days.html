@@ -2,10 +2,12 @@
 <!--
 Filename: index.html
 Author: Jason Lamb
-Revision: 3.0
-Description: Calendar-year progress calculator anchored to selected date.
+Revision: 3.2
+Description: Calendar-year progress calculator with visible revision badge.
 Changelog:
-3.0 - Fully deterministic selected-date year model. Fixed caching and date math inconsistencies.
+3.0 - Deterministic selected-date year model.
+3.1 - Calendar ordinal model (Dec 31 = 100%).
+3.2 - Added visible revision indicator for public verification.
 -->
 
 <html lang="en">
@@ -30,6 +32,12 @@ body {
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0,0,0,0.4);
+}
+
+.revision {
+    font-size: 14px;
+    opacity: 0.7;
+    margin-bottom: 15px;
 }
 
 input {
@@ -69,8 +77,9 @@ input {
 
 <div class="container">
     <h1>Year Progress Calculator</h1>
-    <p>Select reference date (defaults to today):</p>
+    <div class="revision" id="revisionDisplay"></div>
 
+    <p>Select reference date (defaults to today):</p>
     <input type="date" id="startDate">
 
     <div class="results" id="results"></div>
@@ -82,6 +91,7 @@ input {
 
 <script>
 
+const REVISION = "3.2";
 const msPerDay = 1000 * 60 * 60 * 24;
 
 // Remove time component
@@ -112,7 +122,9 @@ function calculate() {
     const daysSinceStart = Math.floor((selectedDate - yearStart) / msPerDay);
     const daysUntilEnd = Math.floor((yearEnd - selectedDate) / msPerDay);
 
-    const percentComplete = ((daysSinceStart / totalYearDays) * 100).toFixed(2);
+    // Calendar ordinal model
+    const dayOfYear = daysSinceStart + 1;
+    const percentComplete = ((dayOfYear / totalYearDays) * 100).toFixed(2);
 
     document.getElementById("results").innerHTML = `
         <h3>Calendar Year ${year}</h3>
@@ -142,8 +154,9 @@ function calculate() {
     progressFill.textContent = percentComplete + "%";
 }
 
-// Default to today on load
 window.onload = function() {
+
+    document.getElementById("revisionDisplay").innerText = "Revision " + REVISION;
 
     const today = new Date();
     const isoToday = today.toISOString().split("T")[0];
