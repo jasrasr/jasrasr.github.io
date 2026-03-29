@@ -1,109 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spin Wheel - Random Number Picker</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #f3f4f6;
-    }
-    .wheel-container {
-      position: relative;
-      width: 300px;
-      height: 300px;
-    }
-    .wheel {
-      width: 100%;
-      height: 100%;
-      border: 8px solid #333;
-      border-radius: 50%;
-      background: conic-gradient(#ff6f61 0 25%, #ffcc99 25% 50%, #96c93d 50% 75%, #f39c12 75% 100%);
-      animation: spin 0s linear;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .pointer {
-      position: absolute;
-      top: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 10px solid transparent;
-      border-right: 10px solid transparent;
-      border-bottom: 20px solid #333;
-      z-index: 10;
-    }
-    @keyframes spin {
-      from {
-        transform: rotate(0deg);
-      }
-      to {
-        transform: rotate(360deg);
-      }
-    }
-    .buttons {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 20px;
-    }
-    .output {
-      font-size: 1.5rem;
-      margin-top: 15px;
-    }
-  </style>
+    <title>Dynamic Spin Wheel</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #wheel { width: 300px; height: 300px; border-radius: 50%; border: 10px solid #f00; position: relative; }
+        .section { position: absolute; width: 50%; height: 50%; clip-path: polygon(100% 0, 0 100%, 100% 100%); }
+        #button { margin-top: 20px; }
+    </style>
 </head>
 <body>
-  <div class="wheel-container">
-    <div class="pointer"></div>
-    <div class="wheel" id="wheel"></div>
-  </div>
-  <div class="controls buttons">
-    <label>
-      Low:
-      <input type="number" id="low" value="1">
-    </label>
-    <label>
-      High:
-      <input type="number" id="high" value="10">
-    </label>
-    <button id="spin-button">Spin</button>
-  </div>
-  <div class="output" id="result">Result: -</div>
+    <h1>Dynamic Spin Wheel</h1>
+    <div id="wheel"></div>
+    <input type="number" id="startRange" placeholder="Start Range" />
+    <input type="number" id="endRange" placeholder="End Range" />
+    <button id="generate">Generate Wheel</button>
+    <button id="spin">Spin</button>
+    <script>
+        const wheel = document.getElementById('wheel');
 
-  <script>
-    const wheel = document.getElementById('wheel');
-    const result = document.getElementById('result');
-    const spinButton = document.getElementById('spin-button');
+        document.getElementById('generate').addEventListener('click', function() {
+            const start = parseInt(document.getElementById('startRange').value);
+            const end = parseInt(document.getElementById('endRange').value);
+            const sectionsCount = end - start + 1;
+            wheel.innerHTML = '';
 
-    spinButton.addEventListener('click', () => {
-      const low = parseInt(document.getElementById('low').value, 10);
-      const high = parseInt(document.getElementById('high').value, 10);
+            for (let i = 0; i < sectionsCount; i++) {
+                const section = document.createElement('div');
+                section.className = 'section';
+                section.style.transform = `rotate(${(360 / sectionsCount) * i}deg)`;
+                section.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                wheel.appendChild(section);
+            }
+        });
 
-      if (isNaN(low) || isNaN(high) || low >= high) {
-        result.textContent = 'Please ensure Low < High and both are valid numbers.';
-        return;
-      }
-
-      const randomNum = Math.floor(Math.random() * (high - low + 1)) + low;
-
-      // Add spinning animation
-      wheel.style.animation = 'spin 2s cubic-bezier(0.25, 0.1, 0.25, 1)';
-      setTimeout(() => {
-        wheel.style.animation = '';
-        result.textContent = `Result: ${randomNum}`;
-      }, 2000);
-    });
-  </script>
+        document.getElementById('spin').addEventListener('click', function() {
+            const randomDegree = Math.floor(Math.random() * 360);
+            wheel.style.transition = 'transform 5s ease-out';
+            wheel.style.transform = `rotate(${randomDegree + 360 * 5}deg)`;
+        });
+    </script>
 </body>
 </html>
