@@ -3,19 +3,40 @@
 <head>
     <title>Dynamic Spin Wheel</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        #wheel { width: 300px; height: 300px; border-radius: 50%; border: 10px solid #f00; position: relative; }
-        .section { position: absolute; width: 50%; height: 50%; clip-path: polygon(100% 0, 0 100%, 100% 100%); }
-        #button { margin-top: 20px; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #wheel {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 10px solid #f00;
+            position: relative;
+            margin: 0 auto;
+        }
+        .section {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            clip-path: polygon(100% 0, 0 100%, 100% 100%);
+        }
+        #button {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <h1>Dynamic Spin Wheel</h1>
+    <p>Revision: 1.0</p>
+    <p>Last Modified: 2026-03-29</p>
+
     <div id="wheel"></div>
     <input type="number" id="startRange" placeholder="Start Range" />
     <input type="number" id="endRange" placeholder="End Range" />
     <button id="generate">Generate Wheel</button>
     <button id="spin">Spin</button>
+
     <script>
         const wheel = document.getElementById('wheel');
 
@@ -35,9 +56,9 @@
         });
 
         document.getElementById('spin').addEventListener('click', function() {
-            const randomDegree = Math.floor(Math.random() * 360);
-            wheel.style.transition = 'transform 5s ease-out';
-            wheel.style.transform = `rotate(${randomDegree + 360 * 5}deg)`;
+            const randomDegree = Math.random() * 360 + 1440; // Adding at least 4 rotations
+            wheel.style.transition = 'transform 4s ease-out';
+            wheel.style.transform = `rotate(${randomDegree}deg)`;
         });
     </script>
 </body>
