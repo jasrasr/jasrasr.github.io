@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prize Wheel</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d0d2b;
+    color: #fff;
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-x: hidden;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #f0c040;
+    text-shadow: 0 0 20px #f0c04088;
+    letter-spacing: 2px;
+  }
+
+  .layout {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 1100px;
+  }
+
+  /* ── Wheel ── */
+  .wheel-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .wheel-wrap {
+    position: relative;
+    width: 480px;
+    height: 480px;
+  }
+
+  canvas {
+    border-radius: 50%;
+    box-shadow: 0 0 40px #f0c04055;
+  }
+
+  /* Pointer triangle */
+  .pointer {
+    position: absolute;
+    top: 50%;
+    right: -18px;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 22px solid transparent;
+    border-bottom: 22px solid transparent;
+    border-right: 36px solid #f0c040;
+    filter: drop-shadow(0 0 6px #f0c040);
+    z-index: 10;
+  }
+
+  #spinBtn {
+    padding: 14px 48px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, #f0c040, #e07000);
+    color: #0d0d2b;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: 0 4px 20px #f0c04066;
+  }
+
+  #spinBtn:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 6px 28px #f0c04099;
+  }
+
+  #spinBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* ── Names panel ── */
+  .panel {
+    background: #1a1a3e;
+    border: 1px solid #333366;
+    border-radius: 16px;
+    padding: 24px;
+    width: 280px;
+    min-width: 240px;
+  }
+
+  .panel h2 {
+    font-size: 1.1rem;
+    color: #aaa;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .input-row input {
+    flex: 1;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: #0d0d2b;
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+  }
+
+  .input-row input:focus { border-color: #f0c040; }
+
+  .input-row button, .btn-sm {
+    padding: 9px 14px;
+    border-radius: 8px;
+    border: none;
+    background: #f0c040;
+    color: #0d0d2b;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.15s;
+  }
+
+  .input-row button:hover, .btn-sm:hover { background: #ffd966; }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .btn-sm {
+    flex: 1;
+    font-size: 0.78rem;
+    padding: 7px 10px;
+  }
+
+  .btn-sm.danger {
+    background: #c0392b;
+    color: #fff;
+  }
+
+  .btn-sm.danger:hover { background: #e74c3c; }
+
+  #nameList {
+    list-style: none;
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  #nameList li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0d0d2b;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 0.9rem;
+  }
+
+  #nameList li span { flex: 1; }
+
+  #nameList li button {
+    background: none;
+    border: none;
+    color: #c0392b;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0 4px;
+    transition: color 0.15s;
+  }
+
+  #nameList li button:hover { color: #e74c3c; }
+
+  .count {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #666;
+    text-align: right;
+  }
+
+  /* ── Winner overlay ── */
+  #winnerOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000000cc;
+    z-index: 100;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  #winnerOverlay.show { display: flex; }
+
+  .winner-box {
+    background: linear-gradient(135deg, #1a1a3e, #2a1a4e);
+    border: 3px solid #f0c040;
+    border-radius: 24px;
+    padding: 40px 60px;
+    text-align: center;
+    box-shadow: 0 0 60px #f0c04066;
+    z-index: 101;
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+
+  .winner-label {
+    font-size: 1rem;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+  }
+
+  .winner-name {
+    font-size: 2.8rem;
+    font-weight: bold;
+    color: #f0c040;
+    text-shadow: 0 0 30px #f0c040;
+    margin-bottom: 8px;
+  }
+
+  .winner-emoji { font-size: 3rem; }
+
+  #closeBtn {
+    padding: 12px 36px;
+    font-size: 1rem;
+    font-weight: bold;
+    background: #f0c040;
+    color: #0d0d2b;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    z-index: 101;
+    transition: transform 0.1s;
+  }
+
+  #closeBtn:hover { transform: scale(1.05); }
+
+  /* ── Fireworks canvas ── */
+  #fireworks {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* ── Paste modal ── */
+  #pasteModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000000bb;
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #pasteModal.show { display: flex; }
+
+  .modal-box {
+    background: #1a1a3e;
+    border: 1px solid #444;
+    border-radius: 16px;
+    padding: 28px;
+    width: 380px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .modal-box h3 { color: #f0c040; }
+
+  .modal-box p { font-size: 0.85rem; color: #aaa; }
+
+  .modal-box textarea {
+    width: 100%;
+    height: 160px;
+    background: #0d0d2b;
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: #fff;
+    padding: 10px;
+    font-size: 0.9rem;
+    resize: vertical;
+    outline: none;
+  }
+
+  .modal-box textarea:focus { border-color: #f0c040; }
+
+  .modal-btn-row { display: flex; gap: 10px; justify-content: flex-end; }
+
+  .modal-btn-row button {
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+
+  .modal-btn-row .confirm { background: #f0c040; color: #0d0d2b; }
+  .modal-btn-row .cancel  { background: #333; color: #fff; }
+</style>
+</head>
+<body>
+
+<h1>🎡 Prize Wheel</h1>
+
+<div class="layout">
+
+  <!-- Wheel -->
+  <div class="wheel-container">
+    <div class="wheel-wrap">
+      <canvas id="wheel" width="480" height="480"></canvas>
+      <div class="pointer"></div>
+    </div>
+    <button id="spinBtn" onclick="spin()">SPIN!</button>
+  </div>
+
+  <!-- Names panel -->
+  <div class="panel">
+    <h2>Participants</h2>
+    <div class="input-row">
+      <input id="nameInput" type="text" placeholder="Enter a name..." maxlength="40"
+             onkeydown="if(event.key==='Enter') addName()">
+      <button onclick="addName()">Add</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn-sm" onclick="openPaste()">Paste List</button>
+      <button class="btn-sm danger" onclick="clearAll()">Clear All</button>
+    </div>
+    <ul id="nameList"></ul>
+    <div class="count" id="countLabel"></div>
+  </div>
+
+</div>
+
+<!-- Winner overlay -->
+<div id="winnerOverlay">
+  <canvas id="fireworks"></canvas>
+  <div class="winner-box">
+    <div class="winner-label">Winner!</div>
+    <div class="winner-name" id="winnerName"></div>
+    <div class="winner-emoji">🏆</div>
+  </div>
+  <button id="closeBtn" onclick="closeWinner()">Continue</button>
+</div>
+
+<!-- Paste modal -->
+<div id="pasteModal">
+  <div class="modal-box">
+    <h3>Paste Name List</h3>
+    <p>Paste names separated by commas, semicolons, or new lines.</p>
+    <textarea id="pasteArea" placeholder="Alice, Bob, Carol&#10;Dave&#10;Eve; Frank"></textarea>
+    <div class="modal-btn-row">
+      <button class="cancel" onclick="closePaste()">Cancel</button>
+      <button class="confirm" onclick="confirmPaste()">Add Names</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ────────────────────────────────────────────────────────────────────
+let names = [];
+let spinning = false;
+let angle = 0;
+let animId = null;
+let fwAnimId = null;
+let particles = [];
+
+// ── Colours ──────────────────────────────────────────────────────────────────
+const PALETTE = [
+  '#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c',
+  '#3498db','#9b59b6','#e91e63','#00bcd4','#8bc34a',
+  '#ff5722','#607d8b','#795548','#673ab7','#009688'
+];
+
+// ── Wheel drawing ────────────────────────────────────────────────────────────
+const canvas = document.getElementById('wheel');
+const ctx = canvas.getContext('2d');
+const cx = canvas.width / 2;
+const cy = canvas.height / 2;
+const radius = cx - 4;
+
+function drawWheel() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (names.length === 0) {
+    ctx.fillStyle = '#1a1a3e';
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#555';
+    ctx.font = 'bold 18px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Add names to spin!', cx, cy);
+    return;
+  }
+
+  const arc = (Math.PI * 2) / names.length;
+
+  names.forEach((name, i) => {
+    const start = angle + arc * i;
+    const end   = start + arc;
+    const color = PALETTE[i % PALETTE.length];
+
+    // Slice
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, radius, start, end);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = '#0d0d2b';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Label
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + arc / 2);
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+
+    const maxLen = 18;
+    const label = name.length > maxLen ? name.slice(0, maxLen - 1) + '…' : name;
+    const fontSize = names.length > 20 ? 10 : names.length > 12 ? 12 : 14;
+    ctx.font = `bold ${fontSize}px Segoe UI`;
+    ctx.fillStyle = '#fff';
+    ctx.shadowColor = '#0005';
+    ctx.shadowBlur = 4;
+    ctx.fillText(label, radius - 12, 0);
+    ctx.restore();
+  });
+
+  // Centre hub
+  ctx.beginPath();
+  ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+  ctx.fillStyle = '#0d0d2b';
+  ctx.fill();
+  ctx.strokeStyle = '#f0c040';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+// ── Spin logic ───────────────────────────────────────────────────────────────
+function spin() {
+  if (spinning || names.length < 2) return;
+  spinning = true;
+  document.getElementById('spinBtn').disabled = true;
+
+  const totalRotation = (Math.PI * 2) * (8 + Math.random() * 8);
+  const duration = 4000 + Math.random() * 2000;
+  const start = performance.now();
+  const startAngle = angle;
+
+  function ease(t) {
+    // Ease out cubic
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function frame(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    angle = startAngle + totalRotation * ease(progress);
+    drawWheel();
+
+    if (progress < 1) {
+      animId = requestAnimationFrame(frame);
+    } else {
+      spinning = false;
+      document.getElementById('spinBtn').disabled = false;
+      revealWinner();
+    }
+  }
+
+  animId = requestAnimationFrame(frame);
+}
+
+function revealWinner() {
+  // Pointer points right → 0 radians from centre
+  // Winner is the slice under the pointer (right side of wheel)
+  const arc = (Math.PI * 2) / names.length;
+  const normalized = ((angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  // Pointer is at angle 0 (right). Subtract that from normalised.
+  const pointerAngle = 0;
+  const relative = (pointerAngle - normalized + Math.PI * 2) % (Math.PI * 2);
+  const index = Math.floor(relative / arc) % names.length;
+
+  const winner = names[index];
+  document.getElementById('winnerName').textContent = winner;
+  document.getElementById('winnerOverlay').classList.add('show');
+  startFireworks();
+}
+
+// ── Fireworks ────────────────────────────────────────────────────────────────
+const fwCanvas = document.getElementById('fireworks');
+const fwCtx = fwCanvas.getContext('2d');
+
+function resizeFw() {
+  fwCanvas.width  = window.innerWidth;
+  fwCanvas.height = window.innerHeight;
+}
+resizeFw();
+window.addEventListener('resize', resizeFw);
+
+function randomColor() {
+  const h = Math.random() * 360;
+  return `hsl(${h},100%,65%)`;
+}
+
+function launchFirework() {
+  const x = Math.random() * fwCanvas.width;
+  const y = Math.random() * fwCanvas.height * 0.6;
+  const count = 60 + Math.floor(Math.random() * 40);
+  for (let i = 0; i < count; i++) {
+    const speed = 2 + Math.random() * 5;
+    const angle = (Math.PI * 2 * i) / count;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      alpha: 1,
+      color: randomColor(),
+      size: 2 + Math.random() * 2,
+      decay: 0.012 + Math.random() * 0.01
+    });
+  }
+}
+
+function animateFireworks() {
+  fwCtx.fillStyle = 'rgba(0,0,0,0.18)';
+  fwCtx.fillRect(0, 0, fwCanvas.width, fwCanvas.height);
+
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.08; // gravity
+    p.alpha -= p.decay;
+    fwCtx.globalAlpha = Math.max(0, p.alpha);
+    fwCtx.fillStyle = p.color;
+    fwCtx.beginPath();
+    fwCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    fwCtx.fill();
+  });
+
+  fwCtx.globalAlpha = 1;
+  particles = particles.filter(p => p.alpha > 0);
+  fwAnimId = requestAnimationFrame(animateFireworks);
+}
+
+let fwInterval = null;
+
+function startFireworks() {
+  particles = [];
+  fwInterval = setInterval(launchFirework, 500);
+  launchFirework();
+  launchFirework();
+  animateFireworks();
+}
+
+function stopFireworks() {
+  clearInterval(fwInterval);
+  cancelAnimationFrame(fwAnimId);
+  fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+  particles = [];
+}
+
+// ── Winner close ─────────────────────────────────────────────────────────────
+function closeWinner() {
+  document.getElementById('winnerOverlay').classList.remove('show');
+  stopFireworks();
+}
+
+// ── Name management ──────────────────────────────────────────────────────────
+function addName() {
+  const input = document.getElementById('nameInput');
+  const val = input.value.trim();
+  if (!val) return;
+  names.push(val);
+  input.value = '';
+  renderList();
+  drawWheel();
+}
+
+function removeName(i) {
+  names.splice(i, 1);
+  renderList();
+  drawWheel();
+}
+
+function clearAll() {
+  if (!confirm('Remove all names?')) return;
+  names = [];
+  renderList();
+  drawWheel();
+}
+
+function renderList() {
+  const ul = document.getElementById('nameList');
+  ul.innerHTML = names.map((n, i) =>
+    `<li>
+      <span style="color:${PALETTE[i % PALETTE.length]}">${escHtml(n)}</span>
+      <button onclick="removeName(${i})" title="Remove">✕</button>
+    </li>`
+  ).join('');
+
+  document.getElementById('countLabel').textContent =
+    names.length === 0 ? '' : `${names.length} participant${names.length !== 1 ? 's' : ''}`;
+
+  document.getElementById('spinBtn').disabled = names.length < 2;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Paste modal ──────────────────────────────────────────────────────────────
+function openPaste() {
+  document.getElementById('pasteArea').value = '';
+  document.getElementById('pasteModal').classList.add('show');
+  setTimeout(() => document.getElementById('pasteArea').focus(), 100);
+}
+
+function closePaste() {
+  document.getElementById('pasteModal').classList.remove('show');
+}
+
+function confirmPaste() {
+  const raw = document.getElementById('pasteArea').value;
+  const parsed = raw.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean);
+  parsed.forEach(n => names.push(n));
+  closePaste();
+  renderList();
+  drawWheel();
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+names = [
+ 'Jason', 'Alice', 'Bob', 'Carol', 'Dave', 'Eve',
+  'Frank', 'Grace', 'Hank', 'Iris', 'Jake',
+  'Karen', 'Leo', 'Maya', 'Nathan', 'Olivia',
+  'Paul', 'Quinn', 'Rachel', 'Sam', 'Tina',
+  'Ursula', 'Victor', 'Wendy', 'Xavier', 'Yara'
+];
+renderList();
+drawWheel();
+</script>
+</body>
+</html>
