@@ -1,6 +1,6 @@
 <!--
     Filename     : spin-wheel.html
-    Revision     : 1.3.0
+    Revision     : 1.3.1
     Description  : Dynamic spin wheel with configurable number range, winner overlay, and fireworks
     Author       : Jason Lamb (with help from Claude Code)
     Created Date : 2026-04-14
@@ -11,13 +11,14 @@
     1.2.0 moved labels to outer perimeter, raised segment cap to 100, centered page, default range 1-10
     1.2.1 fixed numbers rendering upside down on left half of wheel
     1.3.0 replaced winner text with full overlay modal and fireworks
+    1.3.1 renamed page title and header to Random Number Spin Wheel
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Spin Wheel</title>
+    <title>Random Number Spin Wheel</title>
     <style>
         :root {
             --bg: #ececec;
@@ -170,7 +171,7 @@
 </head>
 <body>
     <main class="page">
-        <h1>Dynamic Spin Wheel</h1>
+        <h1>Random Number Spin Wheel</h1>
 
         <section class="wheel-wrap" aria-label="Spin wheel canvas">
             <canvas id="wheelCanvas" width="640" height="640"></canvas>
