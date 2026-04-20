@@ -113,34 +113,26 @@
         .alerts-bar {
             background: #f8f8f8;
             border-top: 1px solid #e0e0e0;
-            padding: 0 40px;
+            padding: 10px 40px;
             flex-shrink: 0;
             display: flex;
             align-items: center;
-            gap: 16px;
+            justify-content: center;
             height: 25vh;
-        }
-
-        .alerts-label {
-            font-size: 18px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #888;
-            white-space: nowrap;
+            overflow: hidden;
         }
 
         .alerts-content {
-            font-size: 3vh;
             color: #222;
-            flex: 1;
+            text-align: center;
+            white-space: nowrap;
             transition: opacity 0.4s ease;
+            line-height: 1;
         }
 
         .alerts-content.empty {
             color: #bbb;
             font-style: italic;
-            font-size: 2.5vh;
         }
 
         .alerts-content.type-warning {
@@ -156,7 +148,6 @@
         .alerts-content.type-watch {
             color: #cc9900;
             font-weight: 800;
-            font-size: 6vh;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -164,7 +155,6 @@
         .alerts-content.type-severe {
             color: #cc0000;
             font-weight: 900;
-            font-size: 7vh;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
@@ -221,7 +211,6 @@
 
     <!-- Alerts & Notices -->
     <div class="alerts-bar">
-        <div class="alerts-label">Alerts &amp; Notices</div>
         <div class="alerts-content" id="alerts-content">No current alerts</div>
     </div>
 
@@ -312,11 +301,31 @@
         let alertsList = [];
         let alertIndex = 0;
 
+        function fitAlertText() {
+            const el = document.getElementById('alerts-content');
+            const bar = el.parentElement;
+            const maxW = bar.offsetWidth - 80;
+            const maxH = bar.offsetHeight - 20;
+            el.style.fontSize = '10px';
+            let lo = 10, hi = 800;
+            while (hi - lo > 1) {
+                const mid = Math.floor((lo + hi) / 2);
+                el.style.fontSize = mid + 'px';
+                if (el.scrollWidth <= maxW && el.offsetHeight <= maxH) {
+                    lo = mid;
+                } else {
+                    hi = mid;
+                }
+            }
+            el.style.fontSize = lo + 'px';
+        }
+
         function showAlert() {
             const el = document.getElementById('alerts-content');
             if (alertsList.length === 0) {
                 el.className = 'alerts-content empty';
                 el.textContent = 'No current alerts';
+                fitAlertText();
                 return;
             }
             const alert = alertsList[alertIndex % alertsList.length];
@@ -325,9 +334,12 @@
                 el.className = 'alerts-content' + (alert.type ? ` type-${alert.type}` : '');
                 el.textContent = alert.message;
                 el.style.opacity = 1;
+                fitAlertText();
             }, 400);
             alertIndex++;
         }
+
+        window.addEventListener('resize', fitAlertText);
 
         // Fetches from raw GitHub every minute — works on any computer, local or networked
         const ALERTS_URL = 'https://raw.githubusercontent.com/jasrasr/jasrasr.github.io/main/time-clock/alerts.json';
