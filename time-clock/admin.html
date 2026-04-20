@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerts Admin — Time Clock</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f4f4;
+            color: #222;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        /* Token setup */
+        .token-section {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .token-section h2 {
+            font-size: 15px;
+            margin-bottom: 10px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .token-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .token-row input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: monospace;
+        }
+
+        /* Add alert */
+        .add-section {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .add-section h2 {
+            font-size: 15px;
+            margin-bottom: 14px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .form-row input[type="text"] {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .form-row select {
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        /* Buttons */
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary { background: #1a7fa8; color: #fff; }
+        .btn-primary:hover { background: #155f80; }
+        .btn-save { background: #2a9d4e; color: #fff; }
+        .btn-save:hover { background: #1f7a3b; }
+        .btn-danger { background: #cc2222; color: #fff; padding: 6px 12px; font-size: 13px; }
+        .btn-danger:hover { background: #a81a1a; }
+        .btn-sm { background: #eee; color: #333; padding: 6px 12px; font-size: 13px; }
+        .btn-sm:hover { background: #ddd; }
+
+        /* Alert list */
+        .list-section h2 {
+            font-size: 15px;
+            margin-bottom: 14px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .alert-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-item .badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .badge-info    { background: #e8f4fb; color: #1a7fa8; }
+        .badge-warning { background: #fff3e0; color: #b85c00; }
+        .badge-urgent  { background: #fdecea; color: #cc0000; }
+
+        .alert-item .msg {
+            flex: 1;
+            font-size: 16px;
+        }
+
+        .alert-item .actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .empty-list {
+            color: #aaa;
+            font-style: italic;
+            font-size: 15px;
+            padding: 16px 0;
+        }
+
+        /* Status */
+        #status {
+            margin-top: 16px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+
+        #status.ok  { color: #2a9d4e; }
+        #status.err { color: #cc2222; }
+
+        .save-row {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <h1>Alerts &amp; Notices Admin</h1>
+    <p class="subtitle">Changes are saved directly to the repo and appear on the clock within 1 minute.</p>
+
+    <!-- GitHub Token -->
+    <div class="token-section">
+        <h2>GitHub Token</h2>
+        <div class="token-row">
+            <input type="password" id="token-input" placeholder="Paste your GitHub Personal Access Token (stored locally, never sent to repo)">
+            <button class="btn-primary" onclick="saveToken()">Save</button>
+            <button class="btn-sm" onclick="clearToken()">Clear</button>
+        </div>
+    </div>
+
+    <!-- Add Alert -->
+    <div class="add-section">
+        <h2>Add Alert</h2>
+        <div class="form-row">
+            <input type="text" id="new-message" placeholder="Enter alert message..." onkeydown="if(event.key==='Enter') addAlert()">
+            <select id="new-type">
+                <option value="info">Info</option>
+                <option value="warning">Warning</option>
+                <option value="urgent">Urgent</option>
+            </select>
+            <button class="btn-primary" onclick="addAlert()">Add</button>
+        </div>
+    </div>
+
+    <!-- Alert List -->
+    <div class="list-section">
+        <h2>Current Alerts</h2>
+        <div id="alert-list"><div class="empty-list">Loading...</div></div>
+        <div class="save-row">
+            <button class="btn-save" onclick="saveAlerts()">Save &amp; Publish</button>
+            <div id="status"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const REPO  = 'jasrasr/jasrasr.github.io';
+    const FILE  = 'time-clock/alerts.json';
+    const API   = `https://api.github.com/repos/${REPO}/contents/${FILE}`;
+
+    let alerts = [];
+    let fileSha = '';
+
+    // ── Token ──────────────────────────────────────────────────────────
+    function getToken() { return localStorage.getItem('tc_gh_token') || ''; }
+
+    function saveToken() {
+        const val = document.getElementById('token-input').value.trim();
+        if (val) {
+            localStorage.setItem('tc_gh_token', val);
+            document.getElementById('token-input').value = '';
+            setStatus('Token saved.', 'ok');
+            loadAlerts();
+        }
+    }
+
+    function clearToken() {
+        localStorage.removeItem('tc_gh_token');
+        document.getElementById('token-input').value = '';
+        setStatus('Token cleared.', 'ok');
+    }
+
+    // ── Load ───────────────────────────────────────────────────────────
+    async function loadAlerts() {
+        try {
+            const res = await fetch(API, {
+                headers: { Authorization: `token ${getToken()}` }
+            });
+            if (!res.ok) throw new Error(`GitHub API error ${res.status}`);
+            const data = await res.json();
+            fileSha = data.sha;
+            const decoded = JSON.parse(atob(data.content));
+            alerts = decoded.alerts || [];
+            renderList();
+        } catch (err) {
+            setStatus(`Load failed: ${err.message}`, 'err');
+            renderList();
+        }
+    }
+
+    // ── Render ─────────────────────────────────────────────────────────
+    function renderList() {
+        const el = document.getElementById('alert-list');
+        if (alerts.length === 0) {
+            el.innerHTML = '<div class="empty-list">No alerts — add one above.</div>';
+            return;
+        }
+        el.innerHTML = alerts.map((a, i) => `
+            <div class="alert-item">
+                <span class="badge badge-${a.type}">${a.type}</span>
+                <span class="msg">${escHtml(a.message)}</span>
+                <div class="actions">
+                    <button class="btn-sm" onclick="moveUp(${i})">▲</button>
+                    <button class="btn-sm" onclick="moveDown(${i})">▼</button>
+                    <button class="btn-danger" onclick="removeAlert(${i})">Remove</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ── Mutate ─────────────────────────────────────────────────────────
+    function addAlert() {
+        const msg = document.getElementById('new-message').value.trim();
+        const type = document.getElementById('new-type').value;
+        if (!msg) return;
+        alerts.push({ id: Date.now(), message: msg, type });
+        document.getElementById('new-message').value = '';
+        renderList();
+        setStatus('', '');
+    }
+
+    function removeAlert(i) {
+        alerts.splice(i, 1);
+        renderList();
+    }
+
+    function moveUp(i) {
+        if (i === 0) return;
+        [alerts[i - 1], alerts[i]] = [alerts[i], alerts[i - 1]];
+        renderList();
+    }
+
+    function moveDown(i) {
+        if (i === alerts.length - 1) return;
+        [alerts[i], alerts[i + 1]] = [alerts[i + 1], alerts[i]];
+        renderList();
+    }
+
+    // ── Save ───────────────────────────────────────────────────────────
+    async function saveAlerts() {
+        const token = getToken();
+        if (!token) { setStatus('No token saved — paste your GitHub token above first.', 'err'); return; }
+        setStatus('Saving...', '');
+        try {
+            const content = btoa(JSON.stringify({ alerts }, null, 2) + '\n');
+            const body = { message: 'Update alerts.json', content, sha: fileSha };
+            const res = await fetch(API, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `token ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.message || res.status);
+            }
+            const data = await res.json();
+            fileSha = data.content.sha;
+            setStatus('Saved! Clock will update within 1 minute.', 'ok');
+        } catch (err) {
+            setStatus(`Save failed: ${err.message}`, 'err');
+        }
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────
+    function setStatus(msg, cls) {
+        const el = document.getElementById('status');
+        el.textContent = msg;
+        el.className = cls;
+    }
+
+    function escHtml(str) {
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ── Init ───────────────────────────────────────────────────────────
+    if (getToken()) {
+        loadAlerts();
+    } else {
+        document.getElementById('alert-list').innerHTML =
+            '<div class="empty-list">Enter your GitHub token above to load alerts.</div>';
+    }
+</script>
+</body>
+</html>

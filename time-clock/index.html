@@ -134,12 +134,23 @@
             font-size: 20px;
             color: #222;
             flex: 1;
+            transition: opacity 0.4s ease;
         }
 
         .alerts-content.empty {
             color: #bbb;
             font-style: italic;
             font-size: 16px;
+        }
+
+        .alerts-content.type-warning {
+            color: #b85c00;
+            font-weight: 600;
+        }
+
+        .alerts-content.type-urgent {
+            color: #cc0000;
+            font-weight: 700;
         }
 
         /* ── Clock ── */
@@ -278,6 +289,44 @@
 
         fetchWeather();
         setInterval(fetchWeather, 10 * 60 * 1000); // refresh every 10 minutes
+
+        // ── Alerts ───────────────────────────────────────────────────────
+        let alertsList = [];
+        let alertIndex = 0;
+
+        function showAlert() {
+            const el = document.getElementById('alerts-content');
+            if (alertsList.length === 0) {
+                el.className = 'alerts-content empty';
+                el.textContent = 'No current alerts';
+                return;
+            }
+            const alert = alertsList[alertIndex % alertsList.length];
+            el.style.opacity = 0;
+            setTimeout(() => {
+                el.className = 'alerts-content' + (alert.type ? ` type-${alert.type}` : '');
+                el.textContent = alert.message;
+                el.style.opacity = 1;
+            }, 400);
+            alertIndex++;
+        }
+
+        async function fetchAlerts() {
+            try {
+                const res = await fetch(`alerts.json?_=${Date.now()}`);
+                const data = await res.json();
+                alertsList = data.alerts || [];
+                alertIndex = 0;
+                showAlert();
+            } catch (err) {
+                alertsList = [];
+                showAlert();
+            }
+        }
+
+        fetchAlerts();
+        setInterval(fetchAlerts, 60 * 1000);        // reload JSON every minute
+        setInterval(showAlert, 6 * 1000);           // rotate alerts every 6 seconds
     </script>
 
 </body>
