@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Clock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0d0d0d;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Header ── */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 40px;
+            background: #141414;
+            border-bottom: 1px solid #2a2a2a;
+            flex-shrink: 0;
+        }
+
+        /* ── Logo ── */
+        .logo-area {
+            min-width: 220px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-area img {
+            max-height: 64px;
+            max-width: 200px;
+            object-fit: contain;
+        }
+
+        .logo-placeholder {
+            width: 180px;
+            height: 52px;
+            background: #1e1e1e;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            font-size: 13px;
+            letter-spacing: 1px;
+            border: 1px dashed #3a3a3a;
+        }
+
+        /* ── Date ── */
+        .date-area {
+            flex: 1;
+            text-align: center;
+        }
+
+        .date-text {
+            font-size: 26px;
+            font-weight: 300;
+            color: #d0d0d0;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── Weather ── */
+        .weather-area {
+            min-width: 220px;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+        }
+
+        .weather-temp {
+            font-size: 34px;
+            font-weight: 600;
+            line-height: 1;
+            color: #ffffff;
+        }
+
+        .weather-desc {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .weather-precip {
+            font-size: 13px;
+            color: #5bbfdb;
+        }
+
+        .weather-loading {
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* ── Clock ── */
+        .clock-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clock {
+            font-size: clamp(80px, 18vw, 320px);
+            font-weight: 200;
+            letter-spacing: 0.04em;
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            text-shadow:
+                0 0 60px rgba(255, 255, 255, 0.08),
+                0 0 120px rgba(255, 255, 255, 0.04);
+            line-height: 1;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+
+        <!-- Logo -->
+        <div class="logo-area">
+            <img id="company-logo" src="logo.png" alt="Company Logo"
+                 onerror="this.style.display='none'; document.getElementById('logo-placeholder').style.display='flex';">
+            <div id="logo-placeholder" class="logo-placeholder" style="display:none;">COMPANY LOGO</div>
+        </div>
+
+        <!-- Date -->
+        <div class="date-area">
+            <div class="date-text" id="date-display"></div>
+        </div>
+
+        <!-- Weather -->
+        <div class="weather-area" id="weather-area">
+            <div class="weather-loading">Loading weather...</div>
+        </div>
+
+    </div>
+
+    <!-- Clock -->
+    <div class="clock-container">
+        <div class="clock" id="clock-display">--:--:--</div>
+    </div>
+
+    <script>
+        // ── Clock & Date ──────────────────────────────────────────────────
+        function updateClock() {
+            const now = new Date();
+
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock-display').textContent = `${h}:${m}:${s}`;
+
+            const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('date-display').textContent =
+                now.toLocaleDateString('en-US', opts);
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // ── Weather (Open-Meteo — no API key required) ────────────────────
+        // Coordinates for zip 44420 (Brookfield Township, OH)
+        const LAT = 41.2367;
+        const LON = -80.5703;
+
+        const WMO_DESC = {
+            0: 'Clear Sky',
+            1: 'Mainly Clear', 2: 'Partly Cloudy', 3: 'Overcast',
+            45: 'Fog', 48: 'Freezing Fog',
+            51: 'Light Drizzle', 53: 'Drizzle', 55: 'Heavy Drizzle',
+            61: 'Light Rain', 63: 'Rain', 65: 'Heavy Rain',
+            71: 'Light Snow', 73: 'Snow', 75: 'Heavy Snow',
+            77: 'Snow Grains',
+            80: 'Rain Showers', 81: 'Rain Showers', 82: 'Violent Rain Showers',
+            85: 'Snow Showers', 86: 'Heavy Snow Showers',
+            95: 'Thunderstorm',
+            96: 'Thunderstorm w/ Hail', 99: 'Thunderstorm w/ Heavy Hail'
+        };
+
+        async function fetchWeather() {
+            try {
+                const url =
+                    `https://api.open-meteo.com/v1/forecast` +
+                    `?latitude=${LAT}&longitude=${LON}` +
+                    `&current=temperature_2m,weather_code` +
+                    `&daily=precipitation_probability_max,snowfall_sum,weather_code` +
+                    `&temperature_unit=fahrenheit` +
+                    `&timezone=America%2FNew_York` +
+                    `&forecast_days=1`;
+
+                const res = await fetch(url);
+                const data = await res.json();
+
+                const tempF = Math.round(data.current.temperature_2m);
+                const code = data.current.weather_code;
+                const desc = WMO_DESC[code] || 'Unknown';
+
+                const rainPct  = data.daily.precipitation_probability_max[0] ?? 0;
+                const snowfall = data.daily.snowfall_sum[0] ?? 0;
+
+                let precipLine;
+                if (snowfall > 0.1) {
+                    precipLine = `❄ Snow: ${snowfall}" expected · ${rainPct}% precip chance`;
+                } else if (rainPct >= 20) {
+                    precipLine = `🌧 Rain: ${rainPct}% chance today`;
+                } else {
+                    precipLine = `No significant precipitation today`;
+                }
+
+                document.getElementById('weather-area').innerHTML = `
+                    <div class="weather-temp">${tempF}°F</div>
+                    <div class="weather-desc">${desc}</div>
+                    <div class="weather-precip">${precipLine}</div>
+                `;
+            } catch (err) {
+                document.getElementById('weather-area').innerHTML =
+                    `<div class="weather-loading">Weather unavailable</div>`;
+            }
+        }
+
+        fetchWeather();
+        setInterval(fetchWeather, 10 * 60 * 1000); // refresh every 10 minutes
+    </script>
+
+</body>
+</html>
