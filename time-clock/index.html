@@ -127,7 +127,7 @@
             text-align: center;
             white-space: nowrap;
             transition: opacity 0.4s ease;
-            line-height: 1;
+            line-height: 1.15;
             text-transform: uppercase;
         }
 
@@ -306,7 +306,7 @@
             const el = document.getElementById('alerts-content');
             const bar = el.parentElement;
             const maxW = bar.offsetWidth - 80;
-            const maxH = bar.offsetHeight - 20;
+            const maxH = bar.offsetHeight - 40;
             el.style.fontSize = '10px';
             let lo = 10, hi = 800;
             while (hi - lo > 1) {
