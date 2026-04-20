@@ -329,21 +329,23 @@
             alertIndex++;
         }
 
+        // Fetches from raw GitHub every minute — works on any computer, local or networked
+        const ALERTS_URL = 'https://raw.githubusercontent.com/jasrasr/jasrasr.github.io/main/time-clock/alerts.json';
+
         async function fetchAlerts() {
             try {
-                const res = await fetch(`alerts.json?_=${Date.now()}`);
+                const res = await fetch(`${ALERTS_URL}?_=${Date.now()}`);
                 const data = await res.json();
                 alertsList = data.alerts || [];
                 alertIndex = 0;
                 showAlert();
             } catch (err) {
-                alertsList = [];
-                showAlert();
+                // silently keep existing alerts if fetch fails
             }
         }
 
         fetchAlerts();
-        setInterval(fetchAlerts, 60 * 1000);        // reload JSON every minute
+        setInterval(fetchAlerts, 60 * 1000);        // reload from GitHub every minute
         setInterval(showAlert, 6 * 1000);           // rotate alerts every 6 seconds
     </script>
 
