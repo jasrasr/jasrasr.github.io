@@ -74,34 +74,72 @@
 
         /* ── Weather ── */
         .weather-area {
-            min-width: 220px;
-            text-align: right;
+            min-width: 280px;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 3px;
+            gap: 4px;
+        }
+
+        .weather-top {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
         }
 
         .weather-temp {
-            font-size: 44px;
-            font-weight: 600;
+            font-size: 52px;
+            font-weight: 700;
             line-height: 1;
             color: #000000;
         }
 
         .weather-desc {
-            font-size: 18px;
-            color: #555;
+            font-size: 22px;
+            color: #444;
         }
 
         .weather-precip {
-            font-size: 16px;
+            font-size: 18px;
             color: #1a7fa8;
         }
 
         .weather-loading {
             font-size: 18px;
             color: #999;
+        }
+
+        /* ── Alerts ── */
+        .alerts-bar {
+            background: #f8f8f8;
+            border-top: 1px solid #e0e0e0;
+            padding: 14px 40px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-height: 60px;
+        }
+
+        .alerts-label {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            white-space: nowrap;
+        }
+
+        .alerts-content {
+            font-size: 20px;
+            color: #222;
+            flex: 1;
+        }
+
+        .alerts-content.empty {
+            color: #bbb;
+            font-style: italic;
+            font-size: 16px;
         }
 
         /* ── Clock ── */
@@ -150,6 +188,12 @@
     <!-- Clock -->
     <div class="clock-container">
         <div class="clock" id="clock-display">--:--:--</div>
+    </div>
+
+    <!-- Alerts & Notices -->
+    <div class="alerts-bar">
+        <div class="alerts-label">Alerts &amp; Notices</div>
+        <div class="alerts-content empty" id="alerts-content">No current alerts</div>
     </div>
 
     <script>
@@ -220,8 +264,10 @@
                 }
 
                 document.getElementById('weather-area').innerHTML = `
-                    <div class="weather-temp">${tempF}°F</div>
-                    <div class="weather-desc">${desc}</div>
+                    <div class="weather-top">
+                        <div class="weather-temp">${tempF}°F</div>
+                        <div class="weather-desc">${desc}</div>
+                    </div>
                     <div class="weather-precip">${precipLine}</div>
                 `;
             } catch (err) {
