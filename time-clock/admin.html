@@ -152,6 +152,8 @@
         .badge-info    { background: #e8f4fb; color: #1a7fa8; }
         .badge-warning { background: #fff3e0; color: #b85c00; }
         .badge-urgent  { background: #fdecea; color: #cc0000; }
+        .badge-watch   { background: #fff8e1; color: #cc9900; }
+        .badge-severe  { background: #fdecea; color: #cc0000; font-size: 12px; }
 
         .alert-item .msg {
             flex: 1;
@@ -213,6 +215,8 @@
                 <option value="info">Info</option>
                 <option value="warning">Warning</option>
                 <option value="urgent">Urgent</option>
+                <option value="watch">⚠ Watch (large yellow)</option>
+                <option value="severe">🔴 Severe Warning (large red)</option>
             </select>
             <button class="btn-primary" onclick="addAlert()">Add</button>
         </div>
