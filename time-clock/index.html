@@ -170,6 +170,21 @@
             min-height: 0;
         }
 
+        .clock-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.3em;
+        }
+
+        .clock-ampm {
+            font-size: clamp(20px, 3vw, 60px);
+            font-weight: 700;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #555;
+            padding-bottom: 0.15em;
+            line-height: 1;
+        }
+
         .clock {
             font-size: clamp(80px, 18vw, 320px);
             font-weight: 700;
@@ -207,7 +222,10 @@
 
     <!-- Clock -->
     <div class="clock-container">
-        <div class="clock" id="clock-display">--:--:--</div>
+        <div class="clock-wrapper">
+            <div class="clock" id="clock-display">--:--:--</div>
+            <div class="clock-ampm" id="clock-ampm"></div>
+        </div>
     </div>
 
     <!-- Alerts & Notices -->
@@ -220,10 +238,12 @@
         function updateClock() {
             const now = new Date();
 
-            let h = now.getHours() % 12 || 12;
+            const hours = now.getHours();
+            let h = hours % 12 || 12;
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
             document.getElementById('clock-display').textContent = `${h}:${m}:${s}`;
+            document.getElementById('clock-ampm').textContent = hours >= 12 ? 'PM' : 'AM';
 
             const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('date-display').textContent =
