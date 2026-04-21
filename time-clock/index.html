@@ -15,7 +15,7 @@
             background: #ffffff;
             color: #000000;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -246,6 +246,41 @@
             }
             .alerts-content {
                 font-size: 11vh;
+            }
+        }
+
+        /* ── Landscape mobile (e.g. iPhone in landscape) ── */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .header {
+                padding: 6px 20px;
+            }
+            .logo-area img {
+                max-height: 36px;
+                max-width: 120px;
+            }
+            .date-text {
+                font-size: 16px;
+            }
+            .weather-temp {
+                font-size: 24px;
+            }
+            .weather-desc {
+                font-size: 16px;
+            }
+            .weather-precip {
+                display: none;
+            }
+            .alerts-bar {
+                height: 18vh;
+            }
+            .alerts-content {
+                font-size: 9vh;
+            }
+            .clock {
+                font-size: clamp(50px, 16vh, 320px);
+            }
+            .clock-ampm {
+                font-size: clamp(10px, 4vh, 60px);
             }
         }
     </style>
