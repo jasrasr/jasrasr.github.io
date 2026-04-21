@@ -199,6 +199,55 @@
             line-height: 1;
             user-select: none;
         }
+
+        /* ── Mobile ── */
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 14px;
+                gap: 8px;
+            }
+            .logo-area {
+                min-width: unset;
+            }
+            .logo-area img {
+                max-height: 44px;
+                max-width: 130px;
+            }
+            .logo-placeholder {
+                width: 100px;
+                height: 34px;
+                font-size: 10px;
+            }
+            .date-text {
+                font-size: 16px;
+                letter-spacing: 0;
+            }
+            .weather-area {
+                min-width: unset;
+                gap: 2px;
+            }
+            .weather-top {
+                gap: 6px;
+            }
+            .weather-temp {
+                font-size: 26px;
+            }
+            .weather-desc {
+                font-size: 16px;
+            }
+            .weather-precip {
+                font-size: 11px;
+            }
+            .clock {
+                font-size: clamp(60px, 14vh, 320px);
+            }
+            .clock-ampm {
+                font-size: clamp(12px, 3.5vh, 60px);
+            }
+            .alerts-content {
+                font-size: 11vh;
+            }
+        }
     </style>
 </head>
 <body>
