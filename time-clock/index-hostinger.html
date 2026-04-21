@@ -239,8 +239,22 @@
 
     <script>
         // ── Clock & Date ──────────────────────────────────────────────────
+        let timeOffset = 0;
+
+        async function syncTime() {
+            try {
+                const fetchedAt = Date.now();
+                const res  = await fetch('https://worldtimeapi.org/api/timezone/America/New_York');
+                const data = await res.json();
+                const serverMs = data.unixtime * 1000;
+                timeOffset = serverMs - fetchedAt;
+            } catch (e) {
+                timeOffset = 0;
+            }
+        }
+
         function updateClock() {
-            const now = new Date();
+            const now = new Date(Date.now() + timeOffset);
 
             const hours = now.getHours();
             let h = hours % 12 || 12;
@@ -254,8 +268,11 @@
                 now.toLocaleDateString('en-US', opts);
         }
 
-        updateClock();
-        setInterval(updateClock, 1000);
+        syncTime().then(() => {
+            updateClock();
+            setInterval(updateClock, 1000);
+            setInterval(syncTime, 30 * 60 * 1000);
+        });
 
         // ── Weather (Open-Meteo — no API key required) ────────────────────
         const LAT = 41.2367;

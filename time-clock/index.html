@@ -239,8 +239,26 @@
 
     <script>
         // ── Clock & Date ──────────────────────────────────────────────────
+        // Time is synced to worldtimeapi.org (America/New_York).
+        // Offset is applied to every tick so the clock scrolls smoothly
+        // but stays locked to authoritative server time.
+        let timeOffset = 0;
+
+        async function syncTime() {
+            try {
+                const fetchedAt = Date.now();
+                const res  = await fetch('https://worldtimeapi.org/api/timezone/America/New_York');
+                const data = await res.json();
+                const serverMs = data.unixtime * 1000;
+                timeOffset = serverMs - fetchedAt;
+            } catch (e) {
+                // fall back to local clock if sync fails
+                timeOffset = 0;
+            }
+        }
+
         function updateClock() {
-            const now = new Date();
+            const now = new Date(Date.now() + timeOffset);
 
             const hours = now.getHours();
             let h = hours % 12 || 12;
@@ -254,8 +272,11 @@
                 now.toLocaleDateString('en-US', opts);
         }
 
-        updateClock();
-        setInterval(updateClock, 1000);
+        syncTime().then(() => {
+            updateClock();
+            setInterval(updateClock, 1000);
+            setInterval(syncTime, 30 * 60 * 1000); // resync every 30 minutes
+        });
 
         // ── Weather (Open-Meteo — no API key required) ────────────────────
         // Coordinates for zip 44420 (Brookfield Township, OH)
