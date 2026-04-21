@@ -12,8 +12,43 @@
             background: #f4f4f4;
             color: #222;
             min-height: 100vh;
-            padding: 40px 20px;
         }
+
+        /* ── PIN gate ── */
+        .pin-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .pin-box {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 36px 40px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .pin-box h1 { font-size: 22px; margin-bottom: 6px; }
+        .pin-box .sub { font-size: 13px; color: #888; margin-bottom: 24px; }
+        .pin-box label { display: block; font-size: 13px; font-weight: 600; color: #555; margin-bottom: 6px; }
+
+        .pin-box input[type="password"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .pin-error { font-size: 13px; color: #cc2222; margin-bottom: 12px; min-height: 18px; }
+
+        .admin-content { display: none; padding: 40px 20px; }
 
         .container {
             max-width: 700px;
@@ -207,6 +242,22 @@
     </style>
 </head>
 <body>
+
+    <!-- ── PIN gate ── -->
+    <div class="pin-screen" id="pin-screen">
+        <div class="pin-box">
+            <h1>Alerts Admin</h1>
+            <p class="sub">jasrasr.github.io — Enter your PIN to continue.</p>
+            <div class="pin-error" id="pin-error"></div>
+            <label>PIN</label>
+            <input type="password" id="pin-input" placeholder="Enter PIN"
+                   onkeydown="if(event.key==='Enter') checkPin()">
+            <button class="btn-primary" style="width:100%;" onclick="checkPin()">Unlock</button>
+        </div>
+    </div>
+
+    <!-- ── Admin content ── -->
+    <div class="admin-content" id="admin-content">
 <div class="container">
 
     <h1>Alerts &amp; Notices Admin</h1>
@@ -421,6 +472,31 @@
         document.getElementById('alert-list').innerHTML =
             '<div class="empty-list">Enter your GitHub token above to load alerts.</div>';
     }
+
+    // ── PIN gate ────────────────────────────────────────────────────────
+    // SHA-256 hash of your PIN. Default PIN: changeme
+    // To generate a new hash: https://emn178.github.io/online-tools/sha256.html
+    const PIN_HASH = '4a2a10f4dad7c8f7ff5f11cc558f5a7e4e08462b0e0ce7e8a2c8b82b54db614c';
+
+    async function checkPin() {
+        const pin = document.getElementById('pin-input').value;
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin));
+        const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+        if (hash === PIN_HASH) {
+            sessionStorage.setItem('tc_pin_ok', '1');
+            document.getElementById('pin-screen').style.display = 'none';
+            document.getElementById('admin-content').style.display = 'block';
+        } else {
+            document.getElementById('pin-error').textContent = 'Incorrect PIN.';
+        }
+    }
+
+    if (sessionStorage.getItem('tc_pin_ok') === '1') {
+        document.getElementById('pin-screen').style.display = 'none';
+        document.getElementById('admin-content').style.display = 'block';
+    }
 </script>
+
+</div><!-- /admin-content -->
 </body>
 </html>
