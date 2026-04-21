@@ -113,22 +113,26 @@
         .alerts-bar {
             background: #000000;
             border-top: none;
-            padding: 10px 40px;
+            padding: 10px 0;
             flex-shrink: 0;
             display: flex;
             align-items: center;
-            justify-content: center;
             height: 25vh;
             overflow: hidden;
         }
 
+        @keyframes tc-marquee {
+            from { transform: translateX(100vw); }
+            to   { transform: translateX(-100%); }
+        }
+
         .alerts-content {
             color: #ffffff;
-            text-align: center;
             white-space: nowrap;
-            transition: opacity 0.4s ease;
+            display: inline-block;
             line-height: 1.15;
             text-transform: uppercase;
+            font-size: 18vh;
         }
 
         .alerts-content.empty {
@@ -323,61 +327,44 @@
         let alertsList = [];
         let alertIndex = 0;
 
-        function fitAlertText() {
+        function startMarquee() {
             const el = document.getElementById('alerts-content');
-            const bar = el.parentElement;
-            const maxW = bar.offsetWidth - 80;
-            const maxH = bar.offsetHeight - 40;
-            el.style.fontSize = '10px';
-            let lo = 10, hi = 800;
-            while (hi - lo > 1) {
-                const mid = Math.floor((lo + hi) / 2);
-                el.style.fontSize = mid + 'px';
-                if (el.scrollWidth <= maxW && el.offsetHeight <= maxH) {
-                    lo = mid;
-                } else {
-                    hi = mid;
-                }
-            }
-            el.style.fontSize = lo + 'px';
+            el.style.animation = 'none';
+            el.offsetWidth; // force reflow
+            const speed    = 150;
+            const duration = Math.max(4, (window.innerWidth + el.scrollWidth) / speed);
+            el.style.animation = `tc-marquee ${duration.toFixed(2)}s linear 1`;
         }
 
         function showAlert() {
             const el = document.getElementById('alerts-content');
             if (alertsList.length === 0) {
-                el.className = 'alerts-content empty';
+                el.className   = 'alerts-content empty';
                 el.textContent = 'No current alerts';
-                fitAlertText();
-                return;
+            } else {
+                const a = alertsList[alertIndex % alertsList.length];
+                el.className   = 'alerts-content' + (a.type ? ` type-${a.type}` : '');
+                el.textContent = a.message;
+                alertIndex++;
             }
-            const alert = alertsList[alertIndex % alertsList.length];
-            el.style.opacity = 0;
-            setTimeout(() => {
-                el.className = 'alerts-content' + (alert.type ? ` type-${alert.type}` : '');
-                el.textContent = alert.message;
-                el.style.opacity = 1;
-                fitAlertText();
-            }, 400);
-            alertIndex++;
+            startMarquee();
         }
 
-        window.addEventListener('resize', fitAlertText);
+        document.getElementById('alerts-content').addEventListener('animationend', showAlert);
 
         async function fetchAlerts() {
             try {
-                const res = await fetch(`${ALERTS_URL}?_=${Date.now()}`);
+                const res  = await fetch(`${ALERTS_URL}?_=${Date.now()}`);
                 const data = await res.json();
+                const wasEmpty = alertsList.length === 0;
                 alertsList = data.alerts || [];
-                alertIndex = 0;
-                showAlert();
-            } catch (err) {
-                // silently keep existing alerts if fetch fails
-            }
+                if (wasEmpty) { alertIndex = 0; showAlert(); }
+            } catch (err) {}
         }
 
         fetchAlerts();
         setInterval(fetchAlerts, 60 * 1000);
-        setInterval(showAlert, 6 * 1000);
+        showAlert();
     </script>
 
 </body>
