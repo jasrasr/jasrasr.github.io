@@ -134,10 +134,12 @@
             display: flex;
             gap: 10px;
             align-items: flex-start;
+            flex-wrap: wrap;
         }
 
         .form-row input[type="text"] {
             flex: 1;
+            min-width: 0;
             padding: 10px 14px;
             border: 1px solid #ccc;
             border-radius: 6px;
@@ -150,6 +152,20 @@
             border-radius: 6px;
             font-size: 14px;
             background: #fff;
+            max-width: 100%;
+        }
+
+        @media (max-width: 600px) {
+            .admin-wrap { padding: 20px 14px; }
+            .form-row { flex-direction: column; }
+            .form-row input[type="text"],
+            .form-row select,
+            .form-row button { width: 100%; }
+            .alert-item { flex-wrap: wrap; }
+            .alert-item .actions { width: 100%; justify-content: flex-end; }
+            .file-meta { flex-direction: column; gap: 6px; }
+            .save-row { flex-direction: column; align-items: flex-start; }
+            .save-row button { width: 100%; }
         }
 
         /* Buttons */
