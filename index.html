@@ -1,56 +1,3 @@
-<?php
-/*
-File Name   : links.php
-Author      : Jason Lamb (with help from ChatGPT)
-Created     : 2026-02-01
-Modified    : Auto (via filemtime when supported)
-Revision    : 1.5.0
-
-Change Log:
-- 1.0  Initial mobile full-screen layout
-- 1.1  Added footer + revision display
-- 1.2  Switched to scalable grid
-- 1.3  Added color cycling support
-- 1.4  Prepared for PHP migration
-- 1.5  Added true file modification date using filemtime()
-- 1.6  Added navigation for current repo pages and apps
-*/
-
-$revision = "1.6.0";
-$fileName = basename(__FILE__);
-$year = date("Y");
-
-$navSections = [
-    "Main Pages" => [
-        ["href" => "/calculate-days.html", "label" => "Calculate Days"],
-        ["href" => "/chuck.html", "label" => "Chuck Norris"],
-        ["href" => "/generate-password.html", "label" => "Generate Password"],
-        ["href" => "/links.html", "label" => "Links"],
-        ["href" => "/login.html", "label" => "Login"],
-        ["href" => "/menu.html", "label" => "Menu"],
-        ["href" => "/prize-wheel.html", "label" => "Prize Wheel"],
-        ["href" => "/screensize.html", "label" => "Screen Size"],
-        ["href" => "/spin-wheel.html", "label" => "Spin Wheel"],
-    ],
-    "Apps" => [
-        ["href" => "/me/", "label" => "Me"],
-        ["href" => "/social-links/", "label" => "Social Links"],
-        ["href" => "/updates/", "label" => "Updates"],
-    ],
-    "Time Clock" => [
-        ["href" => "/time-clock/", "label" => "Time Clock"],
-        ["href" => "/time-clock/admin.html", "label" => "Admin"],
-        ["href" => "/time-clock/index-hostinger.html", "label" => "Hostinger Clock"],
-        ["href" => "/time-clock/admin-hostinger.html", "label" => "Hostinger Admin"],
-    ],
-];
-
-if (function_exists("filemtime")) {
-    $modified = date("m/d/Y", filemtime(__FILE__));
-} else {
-    $modified = "Static Host";
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -143,7 +90,6 @@ if (function_exists("filemtime")) {
             opacity: 0.9;
         }
 
-        /* Color cycling */
         .link-area:nth-child(6n+1) { background-color: #007BFF; }
         .link-area:nth-child(6n+2) { background-color: #28A745; }
         .link-area:nth-child(6n+3) { background-color: #FFC107; color: #222; }
@@ -182,20 +128,43 @@ if (function_exists("filemtime")) {
     </header>
 
     <main>
-        <?php foreach ($navSections as $sectionName => $links) : ?>
-            <section class="nav-section" aria-labelledby="<?php echo strtolower(str_replace(' ', '-', $sectionName)); ?>">
-                <h2 id="<?php echo strtolower(str_replace(' ', '-', $sectionName)); ?>"><?php echo htmlspecialchars($sectionName); ?></h2>
-                <div class="links">
-                    <?php foreach ($links as $link) : ?>
-                        <a href="<?php echo htmlspecialchars($link["href"]); ?>" class="link-area"><?php echo htmlspecialchars($link["label"]); ?></a>
-                    <?php endforeach; ?>
-                </div>
-            </section>
-        <?php endforeach; ?>
+        <section class="nav-section" aria-labelledby="main-pages">
+            <h2 id="main-pages">Main Pages</h2>
+            <div class="links">
+                <a href="/calculate-days.html" class="link-area">Calculate Days</a>
+                <a href="/chuck.html" class="link-area">Chuck Norris</a>
+                <a href="/generate-password.html" class="link-area">Generate Password</a>
+                <a href="/links.html" class="link-area">Links</a>
+                <a href="/login.html" class="link-area">Login</a>
+                <a href="/menu.html" class="link-area">Menu</a>
+                <a href="/prize-wheel.html" class="link-area">Prize Wheel</a>
+                <a href="/screensize.html" class="link-area">Screen Size</a>
+                <a href="/spin-wheel.html" class="link-area">Spin Wheel</a>
+            </div>
+        </section>
+
+        <section class="nav-section" aria-labelledby="apps">
+            <h2 id="apps">Apps</h2>
+            <div class="links">
+                <a href="/me/" class="link-area">Me</a>
+                <a href="/social-links/" class="link-area">Social Links</a>
+                <a href="/updates/" class="link-area">Updates</a>
+            </div>
+        </section>
+
+        <section class="nav-section" aria-labelledby="time-clock">
+            <h2 id="time-clock">Time Clock</h2>
+            <div class="links">
+                <a href="/time-clock/" class="link-area">Time Clock</a>
+                <a href="/time-clock/admin.html" class="link-area">Admin</a>
+                <a href="/time-clock/index-hostinger.html" class="link-area">Hostinger Clock</a>
+                <a href="/time-clock/admin-hostinger.html" class="link-area">Hostinger Admin</a>
+            </div>
+        </section>
     </main>
 
     <footer>
-        <?php echo "$fileName | Rev $revision | © $year | Modified $modified"; ?>
+        index.html | Rev 1.6.1 | &copy; 2026 | Modified 05/15/2026
     </footer>
 
 </body>
