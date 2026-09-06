@@ -33,6 +33,10 @@ Change Log:
  - Fit all current mobile link buttons and footer within the visible viewport
  - Use dynamic viewport height for mobile Safari
  - Keep a 44px minimum tap target and allow scrolling if more links are added later
+- 1.6
+ - Added TICKETS as the second link, pointing to https://jasr.me/fs/
+ - Changed mobile layout to a 2-column grid
+ - Eight links now fit as four rows within the visible mobile viewport
 -->
 <html lang="en">
 <head>
@@ -112,7 +116,7 @@ Change Log:
             }
         }
 
-        /* Mobile: divide the available screen height across the link buttons */
+        /* Mobile: 2 columns x 4 rows, fitted to the visible viewport */
         @media (max-width: 600px) {
             html,
             body {
@@ -128,16 +132,18 @@ Change Log:
             }
 
             .links {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(4, minmax(44px, 1fr));
                 grid-auto-rows: minmax(44px, 1fr);
                 overflow-y: auto;
                 min-height: 0;
             }
 
             .link-area {
-                font-size: clamp(1.15rem, 5vw, 1.8rem);
+                font-size: clamp(1rem, 4.5vw, 1.55rem);
                 min-height: 0;
-                padding: 8px 12px;
+                padding: 8px 10px;
+                overflow-wrap: anywhere;
             }
 
             footer {
@@ -153,6 +159,7 @@ Change Log:
     <!-- ===== LINKS ===== -->
     <div class="links">
         <a href="https://jasr.me/github/mpg/" class="link-area">MPG</a>
+        <a href="https://jasr.me/fs/" class="link-area">TICKETS</a>
         <a href="https://jasr.me/cvc/" class="link-area">CVC</a>
         <a href="https://jasr.me/family-tracker" class="link-area">FAMILY-TRACKER</a>
         <a href="https://jasr.me/weather/" class="link-area">WEATHER</a>
@@ -160,7 +167,6 @@ Change Log:
         <a href="https://jasr.me/box/" class="link-area">BOX</a>
         <a href="https://jasr.me/updates/" class="link-area">UPDATES</a>
 
-        <!-- <a href="page9.html" class="link-area">Page 9</a> -->
         <!-- Just keep adding more -->
     </div>
 
@@ -173,7 +179,7 @@ Change Log:
             Change revision ONCE here
         */
         const fileName = 'links.html';
-        const revision = '1.5';
+        const revision = '1.6';
         const year = new Date().getFullYear();
         const modified = new Date().toLocaleDateString();
 
